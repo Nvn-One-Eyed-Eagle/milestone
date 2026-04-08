@@ -1,0 +1,382 @@
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+
+  const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const separatorIndex = trimmed.indexOf('=');
+    if (separatorIndex === -1) continue;
+
+    const key = trimmed.slice(0, separatorIndex).trim();
+    let value = trimmed.slice(separatorIndex + 1).trim();
+
+    if (!key || process.env[key]) continue;
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+
+    process.env[key] = value;
+  }
+}
+
+loadEnvFile(path.join(__dirname, '.env'));
+
+const PORT = Number(process.env.PORT || 3000);
+const ROOT_DIR = __dirname;
+const INDEX_FILE = path.join(ROOT_DIR, 'index.html');
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon'
+};
+
+function sendJson(res, statusCode, payload) {
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+  });
+  res.end(JSON.stringify(payload));
+}
+
+function sendText(res, statusCode, message) {
+  res.writeHead(statusCode, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.end(message);
+}
+
+function readRequestBody(req) {
+  return new Promise((resolve, reject) => {
+    let raw = '';
+    req.on('data', chunk => {
+      raw += chunk;
+      if (raw.length > 1_000_000) {
+        req.destroy();
+        reject(new Error('Request body too large'));
+      }
+    });
+    req.on('end', () => {
+      if (!raw) {
+        resolve({});
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(raw));
+      } catch (error) {
+        reject(new Error('Invalid JSON body'));
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+function isConfigured() {
+  return Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
+}
+
+function generateReceipt(appId) {
+  const suffix = crypto.randomBytes(4).toString('hex');
+  return `app_${appId}_${Date.now()}_${suffix}`.slice(0, 40);
+}
+
+function generateLicenseKey(appName) {
+  const slug = String(appName || 'APP')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 5)
+    .padEnd(5, 'X');
+
+  const parts = Array.from({ length: 3 }, () => crypto.randomBytes(3).toString('hex').slice(0, 5).toUpperCase());
+  return `${slug}-${parts.join('-')}`;
+}
+
+async function supabaseRequest(resource, options = {}) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${resource}`, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      ...(options.method && options.method !== 'GET' ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!response.ok) {
+    const message = data?.message || data?.hint || text || 'Supabase request failed';
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+async function getAppById(appId) {
+  const rows = await supabaseRequest(`apps?id=eq.${encodeURIComponent(appId)}&select=id,name,price,download_url,tutorial_url`);
+  return Array.isArray(rows) ? rows[0] : null;
+}
+
+async function createRazorpayOrder({ amount, currency, receipt, notes }) {
+  const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+  const response = await fetch('https://api.razorpay.com/v1/orders', {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${auth}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      amount,
+      currency,
+      receipt,
+      payment_capture: 1,
+      notes
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data?.error?.description || 'Could not create Razorpay order');
+  }
+
+  return data;
+}
+
+function verifySignature({ orderId, paymentId, signature }) {
+  const expected = crypto
+    .createHmac('sha256', RAZORPAY_KEY_SECRET)
+    .update(`${orderId}|${paymentId}`)
+    .digest('hex');
+
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+}
+
+async function handleCreateOrder(req, res) {
+  if (!isConfigured()) {
+    sendJson(res, 500, { error: 'Server is missing Razorpay or Supabase environment variables.' });
+    return;
+  }
+
+  const { appId, email, referralCode } = await readRequestBody(req);
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+
+  if (!appId) {
+    sendJson(res, 400, { error: 'Missing appId.' });
+    return;
+  }
+
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    sendJson(res, 400, { error: 'A valid email address is required.' });
+    return;
+  }
+
+  const app = await getAppById(appId);
+  if (!app) {
+    sendJson(res, 404, { error: 'App not found.' });
+    return;
+  }
+
+  const amount = Number(app.price) * 100;
+  if (!Number.isFinite(amount) || amount <= 0) {
+    sendJson(res, 400, { error: 'App price is invalid.' });
+    return;
+  }
+
+  const order = await createRazorpayOrder({
+    amount,
+    currency: 'INR',
+    receipt: generateReceipt(app.id),
+    notes: {
+      app_id: String(app.id),
+      app_name: String(app.name || ''),
+      email: normalizedEmail,
+      referral_code: String(referralCode || '').trim()
+    }
+  });
+
+  sendJson(res, 200, {
+    orderId: order.id,
+    amount: order.amount,
+    currency: order.currency,
+    keyId: RAZORPAY_KEY_ID,
+    app: {
+      id: app.id,
+      name: app.name,
+      price: Number(app.price),
+      downloadUrl: app.download_url || '#',
+      tutorialUrl: app.tutorial_url || '#'
+    }
+  });
+}
+
+async function handleVerifyPayment(req, res) {
+  if (!isConfigured()) {
+    sendJson(res, 500, { error: 'Server is missing Razorpay or Supabase environment variables.' });
+    return;
+  }
+
+  const {
+    appId,
+    email,
+    referralCode,
+    razorpay_order_id: razorpayOrderId,
+    razorpay_payment_id: razorpayPaymentId,
+    razorpay_signature: razorpaySignature
+  } = await readRequestBody(req);
+
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+
+  if (!appId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+    sendJson(res, 400, { error: 'Missing Razorpay verification payload.' });
+    return;
+  }
+
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    sendJson(res, 400, { error: 'A valid email address is required.' });
+    return;
+  }
+
+  const app = await getAppById(appId);
+  if (!app) {
+    sendJson(res, 404, { error: 'App not found.' });
+    return;
+  }
+
+  if (!verifySignature({
+    orderId: razorpayOrderId,
+    paymentId: razorpayPaymentId,
+    signature: razorpaySignature
+  })) {
+    sendJson(res, 400, { error: 'Payment signature verification failed.' });
+    return;
+  }
+
+  const existingOrders = await supabaseRequest(
+    `orders?razorpay_payment_id=eq.${encodeURIComponent(razorpayPaymentId)}&select=*`
+  );
+
+  const existingOrder = Array.isArray(existingOrders) ? existingOrders[0] : null;
+  if (existingOrder) {
+    sendJson(res, 200, {
+      success: true,
+      order: existingOrder
+    });
+    return;
+  }
+
+  const orderRecord = {
+    app_id: app.id,
+    app_name: app.name,
+    customer_email: normalizedEmail,
+    amount: Number(app.price),
+    currency: 'INR',
+    referral_code: String(referralCode || '').trim() || null,
+    razorpay_order_id: razorpayOrderId,
+    razorpay_payment_id: razorpayPaymentId,
+    payment_signature: razorpaySignature,
+    license_key: generateLicenseKey(app.name),
+    download_url: app.download_url || '#',
+    tutorial_url: app.tutorial_url || '#',
+    status: 'paid'
+  };
+
+  const inserted = await supabaseRequest('orders', {
+    method: 'POST',
+    headers: {
+      Prefer: 'return=representation'
+    },
+    body: JSON.stringify(orderRecord)
+  });
+
+  sendJson(res, 200, {
+    success: true,
+    order: Array.isArray(inserted) ? inserted[0] : orderRecord
+  });
+}
+
+function serveStatic(req, res) {
+  let requestedPath = decodeURIComponent(new URL(req.url, `http://${req.headers.host}`).pathname);
+  if (requestedPath === '/') {
+    requestedPath = '/index.html';
+  }
+
+  const resolvedPath = path.join(ROOT_DIR, requestedPath);
+  if (!resolvedPath.startsWith(ROOT_DIR)) {
+    sendText(res, 403, 'Forbidden');
+    return;
+  }
+
+  fs.readFile(resolvedPath, (error, file) => {
+    if (error) {
+      if (requestedPath !== '/index.html') {
+        fs.readFile(INDEX_FILE, (indexError, html) => {
+          if (indexError) {
+            sendText(res, 404, 'Not found');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(html);
+        });
+        return;
+      }
+
+      sendText(res, 404, 'Not found');
+      return;
+    }
+
+    const ext = path.extname(resolvedPath).toLowerCase();
+    res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
+    res.end(file);
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.method === 'OPTIONS') {
+      sendJson(res, 204, {});
+      return;
+    }
+
+    const pathname = new URL(req.url, `http://${req.headers.host}`).pathname;
+
+    if (req.method === 'POST' && pathname === '/api/create-order') {
+      await handleCreateOrder(req, res);
+      return;
+    }
+
+    if (req.method === 'POST' && pathname === '/api/verify-payment') {
+      await handleVerifyPayment(req, res);
+      return;
+    }
+
+    serveStatic(req, res);
+  } catch (error) {
+    console.error(error);
+    sendJson(res, 500, { error: error.message || 'Internal server error' });
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`AppVault server running on http://localhost:${PORT}`);
+});

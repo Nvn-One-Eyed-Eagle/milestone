@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppVault — Digital Tools Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --bg3: #1a1a26;
+    --surface: #1e1e2e;
+    --surface2: #252538;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --accent: #7c6fff;
+    --accent2: #5548e8;
+    --accent-glow: rgba(124,111,255,0.15);
+    --text: #f0eff8;
+    --text2: #9998b0;
+    --text3: #5e5d75;
+    --green: #22d197;
+    --amber: #f5a623;
+    --red: #ff5e7a;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --r: 12px;
+    --r2: 18px;
+    --transition: 0.2s cubic-bezier(.4,0,.2,1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  a { color: inherit; text-decoration: none; }
+  button { cursor: pointer; font-family: var(--font-body); border: none; }
+  input, textarea, select { font-family: var(--font-body); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-logo {
+    font-family: var(--font-head);
+    font-size: 20px; font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-links a {
+    padding: 6px 14px;
+    border-radius: var(--r);
+    font-size: 14px; font-weight: 500; color: var(--text2);
+    transition: var(--transition);
+  }
+  .nav-links a:hover { color: var(--text); background: var(--surface); }
+  .btn-earn {
+    padding: 7px 18px;
+    border-radius: var(--r);
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--green);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-earn:hover { background: rgba(34,209,151,0.1); border-color: var(--green); }
+  .btn-earn::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .btn-admin {
+    padding: 7px 14px;
+    border-radius: var(--r);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-size: 13px;
+    transition: var(--transition);
+  }
+  .btn-admin:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at center, rgba(124,111,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 99px;
+    border: 1px solid rgba(124,111,255,0.3);
+    background: rgba(124,111,255,0.08);
+    color: var(--accent); font-size: 12px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800; letter-spacing: -1.5px;
+    line-height: 1.1; margin-bottom: 1.2rem;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p {
+    font-size: 17px; color: var(--text2); max-width: 480px;
+    margin: 0 auto 2.5rem; line-height: 1.7;
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 28px; border-radius: var(--r);
+    background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 600;
+    transition: var(--transition);
+  }
+  .hero-cta:hover { background: var(--accent2); transform: translateY(-1px); }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 3rem;
+    margin-top: 3rem; padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat .num { font-family: var(--font-head); font-size: 22px; font-weight: 700; }
+  .hero-stat .lbl { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  /* ── SECTION ── */
+  section { padding: 3.5rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .section-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; }
+  .section-sub { font-size: 13px; color: var(--text3); }
+
+  /* ── PRODUCTS GRID ── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+  }
+  .product-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+  .product-card.featured { border-color: rgba(124,111,255,0.35); }
+  .product-card.featured::before {
+    content: 'Featured';
+    position: absolute; top: 12px; right: 12px;
+    padding: 3px 10px; border-radius: 99px;
+    background: rgba(124,111,255,0.2); color: var(--accent);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  }
+  .card-thumb {
+    width: 100%; height: 180px;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .card-thumb-placeholder {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    background: var(--bg2);
+  }
+  .card-body { padding: 16px 18px 18px; }
+  .card-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 99px;
+    background: var(--bg3); color: var(--text3);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.4px;
+    margin-bottom: 8px;
+  }
+  .card-title { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .card-price { font-family: var(--font-head); font-size: 19px; font-weight: 700; }
+  .card-price .currency { font-size: 13px; font-weight: 500; color: var(--text2); vertical-align: top; margin-top: 3px; display: inline-block; }
+  .card-votes {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--text3);
+  }
+  .vote-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px 10px;
+    color: var(--text2); font-size: 12px;
+    display: flex; align-items: center; gap: 4px;
+    transition: var(--transition);
+  }
+  .vote-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .vote-btn.up.active { background: rgba(124,111,255,0.12); border-color: var(--accent); color: var(--accent); }
+  .vote-btn.down.active { background: rgba(255,94,122,0.1); border-color: var(--red); color: var(--red); }
+
+  /* ── COMING SOON ── */
+  .ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .idea-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px;
+    display: flex; align-items: flex-start; gap: 12px;
+    transition: var(--transition);
+  }
+  .idea-card:hover { border-color: var(--border2); }
+  .idea-icon {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: 10px; background: var(--bg3);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+  .idea-info { flex: 1; }
+  .idea-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .idea-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+  .idea-votes {
+    display: flex; gap: 6px; margin-top: 10px;
+  }
+  .idea-vote {
+    background: none; border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 8px;
+    color: var(--text2); font-size: 12px;
+    display: flex; align-items: center; gap: 3px;
+    transition: var(--transition);
+  }
+  .idea-vote:hover { border-color: var(--accent); color: var(--accent); }
+  .idea-vote.voted { background: rgba(124,111,255,0.1); border-color: var(--accent); color: var(--accent); }
+
+  /* ── PRODUCT MODAL ── */
+  .overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    width: 100%; max-width: 640px;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+  .modal-header {
+    padding: 20px 24px 0;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .modal-close {
+    background: var(--bg3); border: none;
+    width: 32px; height: 32px; border-radius: 8px;
+    color: var(--text2); font-size: 18px; line-height: 1;
+    flex-shrink: 0;
+    transition: var(--transition);
+  }
+  .modal-close:hover { color: var(--text); background: var(--surface2); }
+  .modal-screenshots {
+    display: flex; gap: 8px; padding: 16px 24px;
+    overflow-x: auto;
+  }
+  .modal-screenshots img, .modal-screenshot-ph {
+    height: 140px; border-radius: 10px; flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .modal-screenshot-ph {
+    width: 220px; background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); font-size: 13px;
+  }
+  .modal-body { padding: 0 24px 24px; }
+  .modal-tag { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .modal-title { font-family: var(--font-head); font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+  .modal-desc { color: var(--text2); font-size: 14px; line-height: 1.75; margin-bottom: 20px; }
+  .features-list { list-style: none; margin-bottom: 24px; }
+  .features-list li {
+    font-size: 14px; padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; color: var(--text2);
+  }
+  .features-list li:last-child { border-bottom: none; }
+  .features-list li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 13px; }
+  .modal-buy-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .modal-price { font-family: var(--font-head); font-size: 28px; font-weight: 800; }
+  .modal-price small { font-size: 14px; color: var(--text3); font-weight: 400; }
+  .btn-buy {
+    flex: 1; padding: 13px 28px;
+    border-radius: var(--r);
+    background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 600;
+    transition: var(--transition);
+    min-width: 160px;
+  }
+  .btn-buy:hover { background: var(--accent2); transform: translateY(-1px); }
+  .video-wrap {
+    position: relative; border-radius: var(--r);
+    overflow: hidden; margin-bottom: 20px;
+    background: var(--bg3); aspect-ratio: 16/9;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  .video-placeholder {
+    color: var(--text3); text-align: center;
+    font-size: 13px;
+  }
+  .video-placeholder .play-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 2px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px; font-size: 20px; color: var(--text2);
+  }
+
+  /* ── CHECKOUT MODAL ── */
+  .checkout-modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    width: 100%; max-width: 420px;
+    padding: 28px;
+    animation: slideUp 0.25s ease;
+  }
+  .checkout-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .checkout-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%; padding: 10px 14px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--r); color: var(--text);
+    font-size: 14px; outline: none;
+    transition: var(--transition);
+  }
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,111,255,0.1); }
+  .checkout-total {
+    background: var(--bg3); border-radius: var(--r);
+    padding: 14px; margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .checkout-total .label { font-size: 13px; color: var(--text2); }
+  .checkout-total .amount { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+  .btn-pay {
+    width: 100%; padding: 13px;
+    border-radius: var(--r);
+    background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 600;
+    transition: var(--transition);
+  }
+  .btn-pay:hover { background: var(--accent2); }
+  .checkout-note { font-size: 11px; color: var(--text3); text-align: center; margin-top: 10px; }
+  .checkout-note.error { color: var(--red); }
+
+  /* ── SUCCESS MODAL ── */
+  .success-modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    width: 100%; max-width: 420px;
+    padding: 32px;
+    text-align: center;
+    animation: slideUp 0.25s ease;
+  }
+  .success-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(34,209,151,0.12); border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin: 0 auto 20px;
+  }
+  .success-title { font-family: var(--font-head); font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
+  .success-meta {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    text-align: left;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .success-meta strong { color: var(--text); font-weight: 600; }
+  .license-box {
+    background: var(--bg3); border: 1px dashed var(--border2);
+    border-radius: var(--r); padding: 12px 16px;
+    font-family: monospace; font-size: 14px; letter-spacing: 1px;
+    color: var(--accent); margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .btn-copy {
+    background: var(--surface2); border: none;
+    padding: 4px 10px; border-radius: 6px;
+    color: var(--text2); font-size: 12px;
+    transition: var(--transition);
+  }
+  .btn-copy:hover { color: var(--text); }
+  .success-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-download {
+    flex: 1; padding: 11px;
+    border-radius: var(--r);
+    background: var(--accent); color: #fff;
+    font-size: 14px; font-weight: 600;
+    transition: var(--transition); min-width: 120px;
+  }
+  .btn-download:hover { background: var(--accent2); }
+  .btn-tutorial {
+    flex: 1; padding: 11px;
+    border-radius: var(--r);
+    background: var(--surface2); color: var(--text2);
+    border: 1px solid var(--border2);
+    font-size: 14px; font-weight: 500;
+    transition: var(--transition); min-width: 120px;
+  }
+  .btn-tutorial:hover { color: var(--text); }
+
+  /* ── EARN PAGE ── */
+  .earn-page { display: none; }
+  .earn-page.show { display: block; }
+  .earn-hero {
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+    max-width: 600px; margin: 0 auto;
+  }
+  .earn-hero h1 { font-family: var(--font-head); font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+  .earn-hero h1 em { font-style: normal; color: var(--green); }
+  .earn-hero p { color: var(--text2); font-size: 16px; line-height: 1.7; }
+  .earn-steps {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; max-width: 800px; margin: 0 auto 3rem; padding: 0 2rem;
+  }
+  .earn-step {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r2); padding: 24px;
+  }
+  .earn-step-num {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(34,209,151,0.12); color: var(--green);
+    font-family: var(--font-head); font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .earn-step h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .earn-step p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .earn-ref-box {
+    max-width: 480px; margin: 0 auto; padding: 0 2rem 3rem;
+  }
+  .earn-ref-card {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--r2); padding: 24px;
+  }
+  .earn-ref-card h3 { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .earn-ref-card p { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+  .ref-display {
+    background: var(--bg3); border: 1px dashed var(--border2);
+    border-radius: var(--r); padding: 12px 16px;
+    font-family: monospace; font-size: 16px; font-weight: 600;
+    color: var(--green); letter-spacing: 2px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .earn-rate {
+    background: rgba(34,209,151,0.08); border: 1px solid rgba(34,209,151,0.2);
+    border-radius: var(--r); padding: 14px 18px;
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .earn-rate .rate-num { font-family: var(--font-head); font-size: 28px; font-weight: 800; color: var(--green); }
+  .earn-rate .rate-label { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  /* ── ADMIN PANEL ── */
+  .admin-page { display: none; }
+  .admin-page.show { display: block; }
+  .admin-nav {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 12px 2rem; display: flex; gap: 10px; align-items: center;
+  }
+  .admin-nav-title { font-family: var(--font-head); font-weight: 700; margin-right: 16px; font-size: 15px; }
+  .tab-btn {
+    padding: 6px 14px; border-radius: 8px;
+    background: none; border: 1px solid transparent;
+    color: var(--text2); font-size: 13px; font-weight: 500;
+    transition: var(--transition);
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { background: var(--surface); border-color: var(--border2); color: var(--text); }
+  .admin-content { max-width: 900px; margin: 0 auto; padding: 2rem; }
+  .admin-section { display: none; }
+  .admin-section.show { display: block; }
+  .admin-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r2); overflow: hidden; margin-bottom: 16px;
+  }
+  .admin-card-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+  }
+  .admin-card-head h3 { font-size: 14px; font-weight: 600; }
+  .admin-card-body { padding: 18px; }
+  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .admin-grid.single { grid-template-columns: 1fr; }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; }
+  .field-input {
+    width: 100%; padding: 9px 12px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 8px; color: var(--text);
+    font-size: 13px; outline: none;
+    transition: var(--transition); resize: vertical;
+  }
+  .field-input:focus { border-color: var(--accent); }
+  .field-input.textarea { min-height: 80px; }
+  .admin-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn-save {
+    padding: 9px 20px; border-radius: 8px;
+    background: var(--accent); color: #fff;
+    font-size: 13px; font-weight: 600;
+    transition: var(--transition);
+  }
+  .btn-save:hover { background: var(--accent2); }
+  .btn-danger {
+    padding: 9px 20px; border-radius: 8px;
+    background: rgba(255,94,122,0.1); color: var(--red);
+    border: 1px solid rgba(255,94,122,0.2);
+    font-size: 13px; font-weight: 500;
+    transition: var(--transition);
+  }
+  .btn-danger:hover { background: rgba(255,94,122,0.15); }
+  .btn-add {
+    padding: 9px 20px; border-radius: 8px;
+    background: var(--surface2); color: var(--text2);
+    border: 1px solid var(--border2);
+    font-size: 13px; font-weight: 500;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-add:hover { color: var(--text); }
+  .screenshots-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .screenshot-thumb {
+    width: 80px; height: 56px; border-radius: 6px;
+    background: var(--bg3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--text3); overflow: hidden;
+    position: relative; cursor: pointer;
+  }
+  .screenshot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .screenshot-thumb .remove {
+    position: absolute; top: 2px; right: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(255,94,122,0.8); color: #fff;
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: var(--transition);
+  }
+  .screenshot-thumb:hover .remove { opacity: 1; }
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: var(--r); padding: 12px 18px;
+    font-size: 14px; animation: fadeInUp 0.3s ease;
+    display: none;
+  }
+  .toast.show { display: block; }
+  .toast.success { border-color: rgba(34,209,151,0.3); color: var(--green); }
+  @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+  .store-page {}
+  .main-page-wrap > .hero-outer { display: block; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem; text-align: center;
+    font-size: 12px; color: var(--text3);
+  }
+  footer a { color: var(--text2); }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 2rem; }
+    .hero-stats { gap: 1.5rem; }
+    .admin-grid { grid-template-columns: 1fr; }
+    nav { padding: 0 1rem; }
+    .nav-links a { display: none; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <div class="nav-logo"><span class="dot"></span> App<span>Vault</span></div>
+  <div class="nav-links">
+    <a href="#" onclick="showPage('store')">Store</a>
+    <a href="#" onclick="showPage('store'); scrollToSection('#coming-soon')">Coming Soon</a>
+    <button class="btn-earn" onclick="showPage('earn')">Earn 30%</button>
+    <button class="btn-admin" onclick="showAdminLogin()">⚙ Admin</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════ STORE PAGE ══════════════════════════════════════════ -->
+<div id="page-store" class="store-page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">⚡ Premium Digital Tools</div>
+    <h1>Apps that <em>actually</em><br>get things done</h1>
+    <p>Powerful, focused tools built for productivity. One-time payment, lifetime access, instant delivery.</p>
+    <a href="#products" class="hero-cta">Browse Apps →</a>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num" id="stat-apps">0</div>
+        <div class="lbl">Apps Available</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num" id="stat-customers">—</div>
+        <div class="lbl">Happy Customers</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">30%</div>
+        <div class="lbl">Referral Earnings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section id="products">
+    <div class="section-head">
+      <div class="section-title">All Apps</div>
+      <div class="section-sub" id="product-count"></div>
+    </div>
+    <div class="products-grid" id="products-grid">
+      <!-- rendered by JS -->
+    </div>
+  </section>
+
+  <!-- COMING SOON / VOTE -->
+  <section id="coming-soon">
+    <div class="section-head">
+      <div class="section-title">Coming Soon — Vote for next</div>
+      <div class="section-sub">Most upvoted gets built first</div>
+    </div>
+    <div class="ideas-grid" id="ideas-grid">
+      <!-- rendered by JS -->
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 AppVault. All rights reserved. &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy</a></p>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════ EARN PAGE ══════════════════════════════════════════ -->
+<div id="page-earn" class="earn-page">
+  <div class="earn-hero">
+    <div class="hero-badge" style="margin-bottom:1rem;">💸 Referral Program</div>
+    <h1>Earn <em>30%</em> on every sale</h1>
+    <p>Share your unique referral link. Every time someone buys through your link, you keep 30% of the sale — automatically tracked, no cap.</p>
+  </div>
+
+  <div class="earn-steps">
+    <div class="earn-step">
+      <div class="earn-step-num">1</div>
+      <h3>Get your link</h3>
+      <p>Copy your unique referral code below. It's permanently tied to you.</p>
+    </div>
+    <div class="earn-step">
+      <div class="earn-step-num">2</div>
+      <h3>Share it</h3>
+      <p>Post it on Instagram, WhatsApp, YouTube — anywhere your audience is.</p>
+    </div>
+    <div class="earn-step">
+      <div class="earn-step-num">3</div>
+      <h3>Earn passively</h3>
+      <p>When someone buys using your code, 30% of the sale goes to you. No limits.</p>
+    </div>
+    <div class="earn-step">
+      <div class="earn-step-num">4</div>
+      <h3>Get paid</h3>
+      <p>Earnings are tracked in real time. Payout via UPI / bank transfer on request.</p>
+    </div>
+  </div>
+
+  <div class="earn-ref-box">
+    <div class="earn-ref-card">
+      <h3>Your Referral Code</h3>
+      <p>Share this code with buyers. They enter it at checkout and you get 30% automatically.</p>
+      <div class="ref-display">
+        <span id="earn-ref-code">EARN-XXXXX</span>
+        <button class="btn-copy" onclick="copyRef()">Copy</button>
+      </div>
+      <div class="earn-rate">
+        <div class="rate-num">30%</div>
+        <div class="rate-label">Commission per sale<br><span style="color:var(--text3);font-size:12px;">No cap. No expiry. Just earnings.</span></div>
+      </div>
+      <div style="margin-top:14px;">
+        <p style="font-size:12px;color:var(--text3);">Don't have a code yet? Enter your name to generate one:</p>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input class="form-input" id="ref-name-input" placeholder="Your name or handle" style="flex:1;" />
+          <button class="btn-save" onclick="generateRef()">Generate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="max-width:100%;">
+    <p>Questions? DM us on Instagram. &nbsp;·&nbsp; <a href="#" onclick="showPage('store')">← Back to Store</a></p>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════ ADMIN PAGE ══════════════════════════════════════════ -->
+<div id="page-admin" class="admin-page">
+  <div class="admin-nav">
+    <div class="admin-nav-title">⚙ Admin Panel</div>
+    <button class="tab-btn active" onclick="adminTab('products')">Apps</button>
+    <button class="tab-btn" onclick="adminTab('ideas')">Coming Soon</button>
+    <button class="tab-btn" onclick="adminTab('settings')">Store Settings</button>
+    <div style="flex:1;"></div>
+    <button class="btn-admin" onclick="showPage('store')">← Back to Store</button>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- APPS TAB -->
+    <div class="admin-section show" id="admin-products">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;">Manage Apps</h2>
+        <button class="btn-add" onclick="addNewApp()">+ Add New App</button>
+      </div>
+      <div id="admin-apps-list"></div>
+    </div>
+
+    <!-- IDEAS TAB -->
+    <div class="admin-section" id="admin-ideas">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;">Coming Soon Ideas</h2>
+        <button class="btn-add" onclick="addNewIdea()">+ Add Idea</button>
+      </div>
+      <div id="admin-ideas-list"></div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="admin-section" id="admin-settings">
+      <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:18px;">Store Settings</h2>
+      <div class="admin-card">
+        <div class="admin-card-body">
+          <div class="admin-grid">
+            <div class="field-group">
+              <label class="field-label">Store Name</label>
+              <input class="field-input" id="s-name" value="AppVault" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Instagram Handle</label>
+              <input class="field-input" id="s-ig" placeholder="@yourhandle" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Currency Symbol</label>
+              <input class="field-input" id="s-currency" value="₹" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Customers Count (display)</label>
+              <input class="field-input" id="s-customers" value="1,200+" />
+            </div>
+          </div>
+          <div class="field-group" style="margin-top:14px;">
+            <label class="field-label">Hero Tagline</label>
+            <input class="field-input" id="s-tagline" value="Apps that actually get things done" />
+          </div>
+          <div class="admin-actions">
+            <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Admin Password</h3>
+        <div class="admin-card">
+          <div class="admin-card-body">
+            <div class="admin-grid">
+              <div class="field-group">
+                <label class="field-label">New Password</label>
+                <input class="field-input" id="new-pw" type="password" placeholder="Enter new password" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Confirm Password</label>
+                <input class="field-input" id="confirm-pw" type="password" placeholder="Confirm password" />
+              </div>
+            </div>
+            <div class="admin-actions">
+              <button class="btn-save" onclick="changePassword()">Update Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ MODALS ══════════════════════════════════════════ -->
+
+<!-- Product Detail Modal -->
+<div class="overlay" id="product-overlay" onclick="closeProductModal(event)">
+  <div class="modal" id="product-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-tag" id="m-tag"></div>
+        <div class="modal-title" id="m-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeProductModalDirect()">✕</button>
+    </div>
+    <div id="m-video-section"></div>
+    <div class="modal-screenshots" id="m-screenshots"></div>
+    <div class="modal-body">
+      <div class="modal-desc" id="m-desc"></div>
+      <ul class="features-list" id="m-features"></ul>
+      <div class="modal-buy-row">
+        <div class="modal-price" id="m-price"></div>
+        <button class="btn-buy" id="m-buy-btn" onclick="openCheckout()">Buy Now →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="overlay" id="checkout-overlay" onclick="closeCheckout(event)">
+  <div class="checkout-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div class="checkout-title">Complete Purchase</div>
+      <button class="modal-close" onclick="document.getElementById('checkout-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="checkout-sub" id="checkout-product-name"></div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" id="checkout-email" type="email" placeholder="you@example.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Referral Code (optional)</label>
+      <input class="form-input" id="checkout-ref" placeholder="e.g. EARN-XXXXX" />
+    </div>
+    <div class="checkout-total">
+      <div class="label">Total</div>
+      <div class="amount" id="checkout-amount"></div>
+    </div>
+    <button class="btn-pay" id="pay-btn" onclick="processPayment()">Pay with Razorpay →</button>
+    <div class="checkout-note" id="checkout-note">Secure payment. License key delivered instantly after verification.</div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="overlay" id="success-overlay">
+  <div class="success-modal">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Payment Successful!</div>
+    <div class="success-sub">Your license key is ready. Keep it safe — you'll need it to activate the app.</div>
+    <div class="success-meta" id="success-meta"></div>
+    <div class="license-box">
+      <span id="success-license">VAULT-XXXX-XXXX-XXXX</span>
+      <button class="btn-copy" onclick="copyLicense()">Copy</button>
+    </div>
+    <div class="success-actions">
+      <button class="btn-download" onclick="openDeliveredDownload()">⬇ Download App</button>
+      <button class="btn-tutorial" onclick="openDeliveredTutorial()">View Tutorial</button>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--text3);" id="success-footer">Your order has also been recorded in Supabase.</div>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div class="overlay" id="admin-login-overlay" onclick="closeAdminLogin(event)">
+  <div class="checkout-modal" style="max-width:340px;">
+    <div style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:4px;">Admin Access</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Enter your password to access the admin panel.</div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="admin-pw-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPw()" />
+    </div>
+    <button class="btn-pay" onclick="checkAdminPw()">Enter Admin Panel</button>
+    <div id="admin-pw-error" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none;">Incorrect password</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════ SCRIPT ══════════════════════════════════════════ -->
+<script>
+
+// Initialize Supabase
+const supabaseUrl = 'https://qgfrfionwcdziuixmezj.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZnJmaW9ud2Nkeml1aXhtZXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODU0MjQsImV4cCI6MjA5MTE2MTQyNH0.XA2jQUq1gNFQhNs5UJ-bco6sZ7DWqvmdvrgb6r-7QWU';
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+const API_BASE_URL = window.location.origin;
+
+// We will store the fetched data here instead of localStorage
+let store = {
+  settings: {
+    name: 'AppVault',
+    tagline: 'Apps that actually get things done',
+    currency: '₹',
+    customers: '1,200+',
+    instagram: ''
+  },
+  adminPassword: 'admin123',
+  apps: [],
+  ideas: []
+};
+
+const localAdminState = JSON.parse(localStorage.getItem('appvault_store_admin') || '{}');
+if (localAdminState.settings) {
+  store.settings = { ...store.settings, ...localAdminState.settings };
+}
+if (localAdminState.adminPassword) {
+  store.adminPassword = localAdminState.adminPassword;
+}
+
+function normalizeApp(app) {
+  return {
+    id: app?.id,
+    name: app?.name || '',
+    featured: Boolean(app?.featured),
+    category: app?.category || 'App',
+    emoji: app?.emoji || '📦',
+    shortDesc: app?.shortDesc ?? app?.short_desc ?? '',
+    fullDesc: app?.fullDesc ?? app?.full_desc ?? '',
+    price: Number(app?.price) || 0,
+    features: Array.isArray(app?.features) ? app.features : [],
+    screenshots: Array.isArray(app?.screenshots) ? app.screenshots : Array.isArray(app?.screenshot_urls) ? app.screenshot_urls : [],
+    videoUrl: app?.videoUrl ?? app?.video_url ?? '',
+    downloadUrl: app?.downloadUrl ?? app?.download_url ?? '#',
+    tutorialUrl: app?.tutorialUrl ?? app?.tutorial_url ?? '#',
+    votes: {
+      up: Number(app?.upvotes ?? app?.votes?.up) || 0,
+      down: Number(app?.downvotes ?? app?.votes?.down) || 0
+    }
+  };
+}
+
+function normalizeIdea(idea) {
+  return {
+    id: idea?.id,
+    name: idea?.name || '',
+    emoji: '💡',
+    desc: idea?.desc ?? idea?.description ?? '',
+    votes: {
+      up: Number(idea?.upvotes ?? idea?.votes?.up) || 0,
+      down: Number(idea?.downvotes ?? idea?.votes?.down) || 0
+    }
+  };
+}
+
+function appToDb(app) {
+  return {
+    id: app.id,
+    name: app.name,
+    featured: Boolean(app.featured),
+    category: app.category || 'App',
+    emoji: app.emoji || '📦',
+    short_desc: app.shortDesc || '',
+    full_desc: app.fullDesc || '',
+    price: Number(app.price) || 0,
+    features: Array.isArray(app.features) ? app.features : [],
+    screenshots: Array.isArray(app.screenshots) ? app.screenshots : [],
+    video_url: app.videoUrl || '',
+    download_url: app.downloadUrl || '#',
+    tutorial_url: app.tutorialUrl || '#',
+    upvotes: Number(app?.votes?.up) || 0,
+    downvotes: Number(app?.votes?.down) || 0
+  };
+}
+
+function ideaToDb(idea) {
+  return {
+    id: idea.id,
+    name: idea.name,
+    emoji: idea.emoji || '💡',
+    description: idea.desc || '',
+    upvotes: Number(idea?.votes?.up) || 0,
+    downvotes: Number(idea?.votes?.down) || 0
+  };
+}
+
+function save() {
+  localStorage.setItem('appvault_store_admin', JSON.stringify({
+    settings: store.settings,
+    adminPassword: store.adminPassword
+  }));
+}
+
+function syncViews() {
+  renderStore();
+  if (document.getElementById('page-admin').style.display === 'block') {
+    renderAdmin();
+  }
+}
+
+// Fetch data from Supabase
+async function initStore() {
+  const [{ data: appsData, error: appsError }, { data: ideasData, error: ideasError }] = await Promise.all([
+    supabaseClient.from('apps').select('*').order('featured', { ascending: false }).order('id', { ascending: true }),
+    supabaseClient.from('ideas').select('*').order('id', { ascending: true })
+  ]);
+
+  if (appsError) {
+    console.error('Error loading apps:', appsError);
+    showToast('Could not load apps from Supabase', false);
+  } else {
+    store.apps = (appsData || []).map(normalizeApp);
+  }
+
+  if (ideasError) {
+    console.error('Error loading ideas:', ideasError);
+    showToast('Could not load ideas from Supabase', false);
+  } else {
+    store.ideas = (ideasData || []).map(normalizeIdea);
+  }
+
+  syncViews();
+}
+
+async function migrateLocalStoreToSupabase() {
+  const legacyStore = JSON.parse(localStorage.getItem('appvault_store') || 'null');
+  if (!legacyStore) {
+    console.log('No legacy localStorage data found.');
+    return;
+  }
+
+  const legacyApps = Array.isArray(legacyStore.apps) ? legacyStore.apps.map(normalizeApp).map(appToDb) : [];
+  const legacyIdeas = Array.isArray(legacyStore.ideas) ? legacyStore.ideas.map(normalizeIdea).map(ideaToDb) : [];
+
+  if (legacyApps.length) {
+    const { error } = await supabaseClient.from('apps').upsert(legacyApps);
+    if (error) throw error;
+  }
+
+  if (legacyIdeas.length) {
+    const { error } = await supabaseClient.from('ideas').upsert(legacyIdeas);
+    if (error) throw error;
+  }
+
+  console.log('Legacy localStorage data migrated to Supabase.');
+  await initStore();
+}
+
+window.migrateLocalStoreToSupabase = migrateLocalStoreToSupabase;
+
+let currentApp = null;
+let deliveredOrder = null;
+let isProcessingPayment = false;
+let userVotes = JSON.parse(localStorage.getItem('appvault_votes') || '{}');
+let ideavotes = JSON.parse(localStorage.getItem('appvault_ideavotes') || '{}');
+
+// ── PAGE ROUTING ──
+function showPage(page) {
+  document.getElementById('page-store').style.display = 'none';
+  document.getElementById('page-earn').style.display = 'none';
+  document.getElementById('page-admin').style.display = 'none';
+  if (page === 'store') { document.getElementById('page-store').style.display = 'block'; renderStore(); }
+  if (page === 'earn') { document.getElementById('page-earn').style.display = 'block'; renderEarnPage(); }
+  if (page === 'admin') { document.getElementById('page-admin').style.display = 'block'; renderAdmin(); }
+  window.scrollTo(0,0);
+}
+
+function scrollToSection(id) {
+  setTimeout(() => {
+    const el = document.querySelector(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+}
+
+// ── RENDER STORE ──
+function renderStore() {
+  const s = store.settings;
+  document.title = s.name + ' — Digital Tools Store';
+  document.getElementById('stat-apps').textContent = store.apps.length;
+  document.getElementById('stat-customers').textContent = s.customers;
+  document.getElementById('product-count').textContent = store.apps.length + ' app' + (store.apps.length !== 1 ? 's' : '');
+
+  // Products
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = store.apps.map(app => `
+    <div class="product-card ${app.featured ? 'featured' : ''}" onclick='openProduct(${JSON.stringify(app.id)})'>
+      <div class="card-thumb">
+        ${app.screenshots && app.screenshots.length > 0
+          ? `<img src="${app.screenshots[0]}" alt="${app.name}" />`
+          : `<div class="card-thumb-placeholder">${app.emoji || '📦'}</div>`}
+      </div>
+      <div class="card-body">
+        <div class="card-tag">${app.category || 'App'}</div>
+        <div class="card-title">${app.name}</div>
+        <div class="card-desc">${app.shortDesc}</div>
+        <div class="card-footer">
+          <div class="card-price"><span class="currency">${s.currency}</span>${app.price.toLocaleString()}</div>
+          <div class="card-votes">
+            <button class="vote-btn up ${userVotes[app.id] === 'up' ? 'active' : ''}" onclick='vote(event, ${JSON.stringify(app.id)}, "up")'>▲ ${app.votes.up}</button>
+            <button class="vote-btn down ${userVotes[app.id] === 'down' ? 'active' : ''}" onclick='vote(event, ${JSON.stringify(app.id)}, "down")'>▼ ${app.votes.down}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Ideas
+  const igrid = document.getElementById('ideas-grid');
+  igrid.innerHTML = store.ideas.map(idea => `
+    <div class="idea-card">
+      <div class="idea-icon">${idea.emoji || '💡'}</div>
+      <div class="idea-info">
+        <div class="idea-name">${idea.name}</div>
+        <div class="idea-desc">${idea.desc}</div>
+        <div class="idea-votes">
+          <button class="idea-vote ${ideavotes[idea.id] === 'up' ? 'voted' : ''}" onclick='voteIdea(${JSON.stringify(idea.id)}, "up")'>▲ ${idea.votes.up}</button>
+          <button class="idea-vote" onclick='voteIdea(${JSON.stringify(idea.id)}, "down")' style="${ideavotes[idea.id] === 'down' ? 'color:var(--red);border-color:var(--red);' : ''}">▼ ${idea.votes.down}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function vote(e, id, dir) {
+  e.stopPropagation();
+  const app = store.apps.find(a => a.id === id);
+  if (!app) return;
+  const nextVotes = { ...app.votes };
+
+  if (userVotes[id] === dir) {
+    nextVotes[dir] = Math.max(0, nextVotes[dir] - 1);
+    delete userVotes[id];
+  } else {
+    if (userVotes[id]) nextVotes[userVotes[id]] = Math.max(0, nextVotes[userVotes[id]] - 1);
+    nextVotes[dir] += 1;
+    userVotes[id] = dir;
+  }
+
+  const { error } = await supabaseClient
+    .from('apps')
+    .update({ upvotes: nextVotes.up, downvotes: nextVotes.down })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating app votes:', error);
+    showToast('Could not update vote', false);
+    await initStore();
+    return;
+  }
+
+  app.votes = nextVotes;
+  localStorage.setItem('appvault_votes', JSON.stringify(userVotes));
+  renderStore();
+}
+
+async function voteIdea(id, dir) {
+  const idea = store.ideas.find(i => i.id === id);
+  if (!idea) return;
+  const nextVotes = { ...idea.votes };
+
+  if (ideavotes[id] === dir) {
+    nextVotes[dir] = Math.max(0, nextVotes[dir] - 1);
+    delete ideavotes[id];
+  } else {
+    if (ideavotes[id]) nextVotes[ideavotes[id]] = Math.max(0, nextVotes[ideavotes[id]] - 1);
+    nextVotes[dir] += 1;
+    ideavotes[id] = dir;
+  }
+
+  const { error } = await supabaseClient
+    .from('ideas')
+    .update({ upvotes: nextVotes.up, downvotes: nextVotes.down })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating idea votes:', error);
+    showToast('Could not update idea vote', false);
+    await initStore();
+    return;
+  }
+
+  idea.votes = nextVotes;
+  localStorage.setItem('appvault_ideavotes', JSON.stringify(ideavotes));
+  renderStore();
+}
+
+// ── PRODUCT MODAL ──
+function openProduct(id) {
+  const app = store.apps.find(a => a.id === id);
+  if (!app) return;
+  currentApp = app;
+  const s = store.settings;
+  document.getElementById('m-tag').textContent = app.category || 'App';
+  document.getElementById('m-title').textContent = app.name;
+  document.getElementById('m-desc').textContent = app.fullDesc || app.shortDesc;
+  document.getElementById('m-price').innerHTML = `<span style="font-size:15px;color:var(--text3);font-weight:400;">${s.currency}</span>${app.price.toLocaleString()} <small>one-time</small>`;
+
+  // Video
+  const vSec = document.getElementById('m-video-section');
+  if (app.videoUrl) {
+    let embedUrl = app.videoUrl;
+    if (embedUrl.includes('youtube.com/watch')) embedUrl = embedUrl.replace('watch?v=', 'embed/');
+    if (embedUrl.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/' + embedUrl.split('youtu.be/')[1];
+    vSec.innerHTML = `<div style="padding:0 24px 0;"><div class="video-wrap"><iframe src="${embedUrl}" allowfullscreen></iframe></div></div>`;
+  } else {
+    vSec.innerHTML = `<div style="padding:0 24px 0;"><div class="video-wrap"><div class="video-placeholder"><div class="play-icon">▶</div><div>Demo video coming soon</div></div></div></div>`;
+  }
+
+  // Screenshots
+  const sc = document.getElementById('m-screenshots');
+  if (app.screenshots && app.screenshots.length > 0) {
+    sc.innerHTML = app.screenshots.map(s => `<img src="${s}" style="height:140px;border-radius:10px;border:1px solid var(--border);" />`).join('');
+  } else {
+    sc.innerHTML = `<div class="modal-screenshot-ph">Screenshot 1</div><div class="modal-screenshot-ph">Screenshot 2</div>`;
+  }
+
+  // Features
+  const fl = document.getElementById('m-features');
+  fl.innerHTML = (app.features || []).map(f => `<li>${f}</li>`).join('');
+
+  document.getElementById('product-overlay').classList.add('open');
+}
+
+function closeProductModal(e) {
+  if (e.target.id === 'product-overlay') document.getElementById('product-overlay').classList.remove('open');
+}
+function closeProductModalDirect() {
+  document.getElementById('product-overlay').classList.remove('open');
+}
+
+// ── CHECKOUT ──
+function openCheckout() {
+  if (!currentApp) return;
+  deliveredOrder = null;
+  document.getElementById('product-overlay').classList.remove('open');
+  document.getElementById('checkout-product-name').textContent = 'Purchasing: ' + currentApp.name;
+  document.getElementById('checkout-amount').textContent = store.settings.currency + currentApp.price.toLocaleString();
+  setCheckoutState(false, 'Secure payment. License key delivered instantly after verification.', false);
+  document.getElementById('checkout-overlay').classList.add('open');
+}
+
+function closeCheckout(e) {
+  if (e.target.id === 'checkout-overlay') document.getElementById('checkout-overlay').classList.remove('open');
+}
+
+function setCheckoutState(loading, note, isError) {
+  isProcessingPayment = loading;
+  const payBtn = document.getElementById('pay-btn');
+  const checkoutNote = document.getElementById('checkout-note');
+  payBtn.disabled = loading;
+  payBtn.textContent = loading ? 'Preparing secure checkout...' : 'Pay with Razorpay →';
+  checkoutNote.textContent = note;
+  checkoutNote.className = 'checkout-note' + (isError ? ' error' : '');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderDeliveredOrder(order) {
+  deliveredOrder = order;
+  document.getElementById('success-license').textContent = order.license_key;
+  document.getElementById('success-meta').innerHTML = `
+    <div><strong>App:</strong> ${escapeHtml(order.app_name)}</div>
+    <div><strong>Email:</strong> ${escapeHtml(order.customer_email)}</div>
+    <div><strong>Payment ID:</strong> ${escapeHtml(order.razorpay_payment_id)}</div>
+  `;
+  document.getElementById('success-footer').textContent = order.referral_code
+    ? `Referral code ${order.referral_code} has been attached to this order.`
+    : 'Your order has also been recorded in Supabase.';
+  document.getElementById('success-overlay').classList.add('open');
+}
+
+async function processPayment() {
+  const email = document.getElementById('checkout-email').value.trim();
+  const referralCode = document.getElementById('checkout-ref').value.trim();
+
+  if (!currentApp) {
+    showToast('Please choose an app first', false);
+    return;
+  }
+  if (!email || !email.includes('@')) {
+    showToast('Please enter a valid email address', false);
+    return;
+  }
+  if (isProcessingPayment) return;
+  if (!window.Razorpay) {
+    showToast('Razorpay checkout failed to load. Refresh and try again.', false);
+    return;
+  }
+
+  setCheckoutState(true, 'Creating your Razorpay order...', false);
+
+  try {
+    const orderResponse = await fetch(`${API_BASE_URL}/api/create-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        appId: currentApp.id,
+        email,
+        referralCode
+      })
+    });
+
+    const orderData = await orderResponse.json();
+    if (!orderResponse.ok) {
+      throw new Error(orderData.error || 'Could not create Razorpay order');
+    }
+
+    const razorpay = new window.Razorpay({
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: store.settings.name,
+      description: `Purchase ${currentApp.name}`,
+      order_id: orderData.orderId,
+      prefill: { email },
+      notes: {
+        app_id: String(currentApp.id),
+        referral_code: referralCode
+      },
+      theme: { color: '#7c6fff' },
+      modal: {
+        ondismiss: () => {
+          setCheckoutState(false, 'Checkout was closed before payment completed.', true);
+        }
+      },
+      handler: async function (paymentResult) {
+        setCheckoutState(true, 'Verifying payment and delivering your license...', false);
+
+        try {
+          const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              appId: currentApp.id,
+              email,
+              referralCode,
+              ...paymentResult
+            })
+          });
+
+          const verifyData = await verifyResponse.json();
+          if (!verifyResponse.ok) {
+            throw new Error(verifyData.error || 'Payment verification failed');
+          }
+
+          document.getElementById('checkout-overlay').classList.remove('open');
+          renderDeliveredOrder(verifyData.order);
+          setCheckoutState(false, 'Secure payment. License key delivered instantly after verification.', false);
+          showToast('Payment verified and license delivered!', true);
+        } catch (error) {
+          console.error(error);
+          setCheckoutState(false, error.message || 'Payment verification failed.', true);
+          showToast(error.message || 'Payment verification failed', false);
+        }
+      }
+    });
+
+    razorpay.on('payment.failed', function (response) {
+      const reason = response?.error?.description || 'Payment failed. Please try again.';
+      setCheckoutState(false, reason, true);
+      showToast(reason, false);
+    });
+
+    razorpay.open();
+  } catch (error) {
+    console.error(error);
+    setCheckoutState(false, error.message || 'Could not start checkout.', true);
+    showToast(error.message || 'Could not start checkout', false);
+  }
+}
+
+function openDeliveredDownload() {
+  const url = deliveredOrder?.download_url || currentApp?.downloadUrl || '#';
+  if (url && url !== '#') {
+    window.open(url, '_blank');
+    return;
+  }
+
+  showToast('Download link will be configured in admin panel', false);
+}
+
+function openDeliveredTutorial() {
+  const url = deliveredOrder?.tutorial_url || currentApp?.tutorialUrl || '#';
+  if (url && url !== '#') {
+    window.open(url, '_blank');
+    return;
+  }
+
+  document.getElementById('success-overlay').classList.remove('open');
+  showToast('Tutorial link is not configured yet', false);
+}
+
+function copyLicense() {
+  const text = document.getElementById('success-license').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('License key copied!', true));
+}
+
+// ── EARN PAGE ──
+function renderEarnPage() {
+  // Show placeholder until user generates one
+  document.getElementById('earn-ref-code').textContent = 'EARN-XXXXX';
+}
+
+function generateRef() {
+  const name = document.getElementById('ref-name-input').value.trim();
+  if (!name) { showToast('Enter your name first', false); return; }
+  const code = 'EARN-' + name.replace(/\s+/g,'').toUpperCase().substring(0,5) + Math.floor(Math.random()*900+100);
+  document.getElementById('earn-ref-code').textContent = code;
+  showToast('Referral code generated!', true);
+}
+
+function copyRef() {
+  const code = document.getElementById('earn-ref-code').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast('Code copied!', true));
+}
+
+// ── ADMIN ──
+let adminLoggedIn = false;
+
+function showAdminLogin() {
+  if (adminLoggedIn) { showPage('admin'); return; }
+  document.getElementById('admin-pw-input').value = '';
+  document.getElementById('admin-pw-error').style.display = 'none';
+  document.getElementById('admin-login-overlay').classList.add('open');
+}
+function closeAdminLogin(e) {
+  if (e.target.id === 'admin-login-overlay') document.getElementById('admin-login-overlay').classList.remove('open');
+}
+function checkAdminPw() {
+  const pw = document.getElementById('admin-pw-input').value;
+  if (pw === store.adminPassword) {
+    adminLoggedIn = true;
+    document.getElementById('admin-login-overlay').classList.remove('open');
+    showPage('admin');
+  } else {
+    document.getElementById('admin-pw-error').style.display = 'block';
+  }
+}
+
+function adminTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('show'));
+  document.getElementById('admin-' + tab).classList.add('show');
+}
+
+function renderAdmin() {
+  renderAdminApps();
+  renderAdminIdeas();
+  // Settings
+  document.getElementById('s-name').value = store.settings.name;
+  document.getElementById('s-tagline').value = store.settings.tagline;
+  document.getElementById('s-currency').value = store.settings.currency;
+  document.getElementById('s-customers').value = store.settings.customers;
+  document.getElementById('s-ig').value = store.settings.instagram || '';
+}
+
+function renderAdminApps() {
+  const list = document.getElementById('admin-apps-list');
+  list.innerHTML = store.apps.map(app => `
+    <div class="admin-card">
+      <div class="admin-card-head" onclick="toggleAdminCard('app-${app.id}')">
+        <h3>${app.emoji || '📦'} ${app.name} <span style="font-size:12px;color:var(--text3);font-weight:400;">${store.settings.currency}${app.price}</span></h3>
+        <span style="font-size:13px;color:var(--text3);">▼</span>
+      </div>
+      <div class="admin-card-body" id="app-${app.id}" style="display:none;">
+        <div class="admin-grid">
+          <div class="field-group">
+            <label class="field-label">App Name</label>
+            <input class="field-input" id="a-name-${app.id}" value="${app.name}" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Category</label>
+            <input class="field-input" id="a-cat-${app.id}" value="${app.category || ''}" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Emoji Icon</label>
+            <input class="field-input" id="a-emoji-${app.id}" value="${app.emoji || '📦'}" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price (${store.settings.currency})</label>
+            <input class="field-input" id="a-price-${app.id}" type="number" value="${app.price}" />
+          </div>
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Short Description (card)</label>
+          <input class="field-input" id="a-short-${app.id}" value="${app.shortDesc}" />
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Full Description (product page)</label>
+          <textarea class="field-input textarea" id="a-full-${app.id}">${app.fullDesc || ''}</textarea>
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Features (one per line)</label>
+          <textarea class="field-input textarea" id="a-features-${app.id}">${(app.features || []).join('\n')}</textarea>
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">YouTube Video URL</label>
+          <input class="field-input" id="a-video-${app.id}" value="${app.videoUrl || ''}" placeholder="https://youtube.com/watch?v=..." />
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Screenshot URLs (one per line)</label>
+          <textarea class="field-input textarea" id="a-screenshots-${app.id}" placeholder="https://example.com/screenshot1.jpg">${(app.screenshots || []).join('\n')}</textarea>
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Download URL</label>
+          <input class="field-input" id="a-dl-${app.id}" value="${app.downloadUrl || ''}" placeholder="https://..." />
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Tutorial URL</label>
+          <input class="field-input" id="a-tutorial-${app.id}" value="${app.tutorialUrl || ''}" placeholder="https://..." />
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer;">
+            <input type="checkbox" id="a-featured-${app.id}" ${app.featured ? 'checked' : ''} />
+            Mark as Featured
+          </label>
+        </div>
+        <div class="admin-actions">
+          <button class="btn-save" onclick='saveApp(${JSON.stringify(app.id)})'>Save App</button>
+          <button class="btn-danger" onclick='deleteApp(${JSON.stringify(app.id)})'>Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminIdeas() {
+  const list = document.getElementById('admin-ideas-list');
+  list.innerHTML = store.ideas.map(idea => `
+    <div class="admin-card">
+      <div class="admin-card-head" onclick="toggleAdminCard('idea-${idea.id}')">
+        <h3>${idea.emoji || '💡'} ${idea.name}</h3>
+        <span style="font-size:13px;color:var(--text3);">▼</span>
+      </div>
+      <div class="admin-card-body" id="idea-${idea.id}" style="display:none;">
+        <div class="admin-grid">
+          <div class="field-group">
+            <label class="field-label">Name</label>
+            <input class="field-input" id="i-name-${idea.id}" value="${idea.name}" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Emoji</label>
+            <input class="field-input" id="i-emoji-${idea.id}" value="${idea.emoji || '💡'}" />
+          </div>
+        </div>
+        <div class="field-group" style="margin-top:12px;">
+          <label class="field-label">Description</label>
+          <input class="field-input" id="i-desc-${idea.id}" value="${idea.desc}" />
+        </div>
+        <div class="admin-actions">
+          <button class="btn-save" onclick='saveIdea(${JSON.stringify(idea.id)})'>Save</button>
+          <button class="btn-danger" onclick='deleteIdea(${JSON.stringify(idea.id)})'>Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAdminCard(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveApp(id) {
+  const app = store.apps.find(a => a.id === id);
+  if (!app) return;
+  const payload = appToDb({
+    ...app,
+    name: document.getElementById(`a-name-${id}`).value.trim(),
+    category: document.getElementById(`a-cat-${id}`).value.trim(),
+    emoji: document.getElementById(`a-emoji-${id}`).value.trim(),
+    price: parseInt(document.getElementById(`a-price-${id}`).value, 10) || 0,
+    shortDesc: document.getElementById(`a-short-${id}`).value.trim(),
+    fullDesc: document.getElementById(`a-full-${id}`).value.trim(),
+    features: document.getElementById(`a-features-${id}`).value.split('\n').map(f => f.trim()).filter(Boolean),
+    videoUrl: document.getElementById(`a-video-${id}`).value.trim(),
+    screenshots: document.getElementById(`a-screenshots-${id}`).value.split('\n').map(u => u.trim()).filter(Boolean),
+    downloadUrl: document.getElementById(`a-dl-${id}`).value.trim() || '#',
+    tutorialUrl: document.getElementById(`a-tutorial-${id}`).value.trim() || '#',
+    featured: document.getElementById(`a-featured-${id}`).checked
+  });
+
+  const { data, error } = await supabaseClient
+    .from('apps')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error saving app:', error);
+    showToast('Could not save app', false);
+    return;
+  }
+
+  Object.assign(app, normalizeApp(data || { ...app, ...payload }));
+  showToast('App saved to Supabase!', true);
+  syncViews();
+}
+
+async function deleteApp(id) {
+  if (!confirm('Delete this app?')) return;
+  const { error } = await supabaseClient
+    .from('apps')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting app:', error);
+    showToast('Could not delete app', false);
+    return;
+  }
+
+  store.apps = store.apps.filter(a => a.id !== id);
+  showToast('App deleted from Supabase', true);
+  syncViews();
+}
+
+async function addNewApp() {
+  const payload = appToDb({
+    name: 'New App', category: 'App', emoji: '📦',
+    shortDesc: 'Short description here.',
+    fullDesc: 'Full description here.',
+    price: 999, features: ['Feature 1', 'Feature 2'],
+    screenshots: [], videoUrl: '',
+    downloadUrl: '#', tutorialUrl: '#',
+    featured: false,
+    votes: { up: 0, down: 0 }
+  });
+
+  const { data, error } = await supabaseClient
+    .from('apps')
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding app:', error);
+    showToast('Could not add app', false);
+    return;
+  }
+
+  const newApp = normalizeApp(data || payload);
+  store.apps.push(newApp);
+  syncViews();
+  setTimeout(() => {
+    const el = document.getElementById('app-' + newApp.id);
+    if (el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth' }); }
+  }, 100);
+}
+
+async function saveIdea(id) {
+  const idea = store.ideas.find(i => i.id === id);
+  if (!idea) return;
+  const payload = ideaToDb({
+    ...idea,
+    name: document.getElementById(`i-name-${id}`).value.trim(),
+    emoji: document.getElementById(`i-emoji-${id}`).value.trim(),
+    desc: document.getElementById(`i-desc-${id}`).value.trim()
+  });
+
+  const { data, error } = await supabaseClient
+    .from('ideas')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error saving idea:', error);
+    showToast('Could not save idea', false);
+    return;
+  }
+
+  Object.assign(idea, normalizeIdea(data || { ...idea, ...payload }));
+  showToast('Idea saved to Supabase!', true);
+  syncViews();
+}
+
+async function deleteIdea(id) {
+  if (!confirm('Delete this idea?')) return;
+  const { error } = await supabaseClient
+    .from('ideas')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting idea:', error);
+    showToast('Could not delete idea', false);
+    return;
+  }
+
+  store.ideas = store.ideas.filter(i => i.id !== id);
+  showToast('Idea deleted from Supabase', true);
+  syncViews();
+}
+
+async function addNewIdea() {
+  const payload = ideaToDb({ name: 'New Idea', emoji: '💡', desc: 'Describe this idea.', votes: { up: 0, down: 0 } });
+  const { data, error } = await supabaseClient
+    .from('ideas')
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding idea:', error);
+    showToast('Could not add idea', false);
+    return;
+  }
+
+  const newIdea = normalizeIdea(data || payload);
+  store.ideas.push(newIdea);
+  syncViews();
+  setTimeout(() => {
+    const el = document.getElementById('idea-' + newIdea.id);
+    if (el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth' }); }
+  }, 100);
+}
+
+function saveSettings() {
+  store.settings.name = document.getElementById('s-name').value;
+  store.settings.tagline = document.getElementById('s-tagline').value;
+  store.settings.currency = document.getElementById('s-currency').value;
+  store.settings.customers = document.getElementById('s-customers').value;
+  store.settings.instagram = document.getElementById('s-ig').value;
+  save(); showToast('Settings saved!', true);
+}
+
+function changePassword() {
+  const pw = document.getElementById('new-pw').value;
+  const confirm = document.getElementById('confirm-pw').value;
+  if (!pw) { showToast('Enter a password', false); return; }
+  if (pw !== confirm) { showToast('Passwords do not match', false); return; }
+  store.adminPassword = pw;
+  save(); showToast('Password updated!', true);
+  document.getElementById('new-pw').value = '';
+  document.getElementById('confirm-pw').value = '';
+}
+
+// ── TOAST ──
+function showToast(msg, success) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (success ? 'success' : '');
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+// ── INIT ──
+showPage('store');
+initStore();
+</script>
+</body>
+</html>
