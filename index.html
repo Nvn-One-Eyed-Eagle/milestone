@@ -7,835 +7,659 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --bg2: #12121a;
-    --bg3: #1a1a26;
-    --surface: #1e1e2e;
-    --surface2: #252538;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --accent: #7c6fff;
-    --accent2: #5548e8;
-    --accent-glow: rgba(124,111,255,0.15);
-    --text: #f0eff8;
-    --text2: #9998b0;
-    --text3: #5e5d75;
-    --green: #22d197;
-    --amber: #f5a623;
-    --red: #ff5e7a;
-    --font-head: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-    --r: 12px;
-    --r2: 18px;
-    --transition: 0.2s cubic-bezier(.4,0,.2,1);
+    --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;
+    --surface:#1e1e2e;--surface2:#252538;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+    --accent:#7c6fff;--accent2:#5548e8;
+    --text:#f0eff8;--text2:#9998b0;--text3:#5e5d75;
+    --green:#22d197;--amber:#f5a623;--red:#ff5e7a;
+    --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+    --r:12px;--r2:18px;--transition:0.2s cubic-bezier(.4,0,.2,1);
+    --bnh:64px;--left-nav-w:65px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh;padding-bottom:var(--bnh);padding-left:var(--left-nav-w);}
+  a{color:inherit;text-decoration:none;}
+  button{cursor:pointer;font-family:var(--font-body);border:none;}
+  input,textarea,select{font-family:var(--font-body);}
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px;}
+
+  /* TOP NAV */
+  nav.top-nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    padding:0 1.25rem;
+    display:flex;align-items:center;justify-content:space-between;
+    height:54px;
+  }
+  .nav-logo{font-family:var(--font-head);font-size:19px;font-weight:800;letter-spacing:-0.5px;display:flex;align-items:center;gap:7px;}
+  .nav-logo span{color:var(--accent);}
+  .nav-logo .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+  .btn-earn{padding:7px 16px;border-radius:var(--r);background:transparent;border:1px solid var(--border2);color:var(--green);font-size:13px;font-weight:600;transition:var(--transition);display:flex;align-items:center;gap:6px;}
+  .btn-earn:hover{background:rgba(34,209,151,0.1);border-color:var(--green);}
+  .btn-earn::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  /* BOTTOM NAV */
+  .bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:200;
+    height:var(--bnh);
+    background:rgba(10,10,15,0.97);
+    backdrop-filter:blur(24px);
+    border-top:1px solid var(--border2);
+    display:flex;align-items:center;
+    padding:0 6px;
+    padding-bottom:env(safe-area-inset-bottom);
+    left:var(--left-nav-w);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+  /* LEFT SIDEBAR NAV */
+  .left-nav{
+    position:fixed;left:0;top:0;bottom:0;z-index:210;
+    width:var(--left-nav-w);
+    background:rgba(10,10,15,0.98);
+    backdrop-filter:blur(24px);
+    border-right:1px solid var(--border2);
+    display:flex;flex-direction:column;
+    align-items:center;
+    padding:12px 0;
+    gap:8px;
+  }
+  .lnav-item{
+    width:45px;height:45px;
+    border-radius:12px;
+    background:none;border:1px solid transparent;
+    color:var(--text3);
+    display:flex;align-items:center;justify-content:center;
+    transition:var(--transition);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .lnav-item:hover{background:var(--surface);color:var(--text2);}
+  .lnav-item.active{background:rgba(124,111,255,0.15);border-color:var(--accent);color:var(--accent);}
+  .lnav-item svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .bnav-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3px;padding:8px 4px;
+    background:none;border:none;
+    color:var(--text3);font-size:10px;font-weight:500;letter-spacing:0.3px;text-transform:uppercase;
+    transition:var(--transition);position:relative;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .bnav-item.hidden{display:none;}
+  .bnav-item:active{transform:scale(0.92);}
+  .bnav-item.active{color:var(--text);}
+  .bnav-item.active .bnav-icon-wrap{color:var(--accent);}
+  .bnav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:2px;border-radius:99px;background:var(--accent);}
+  .bnav-icon-wrap{width:24px;height:24px;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+  .bnav-icon-wrap svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .bnav-badge{position:absolute;top:5px;right:calc(50% - 22px);min-width:15px;height:15px;border-radius:99px;background:var(--green);color:#0a0a0f;font-size:8px;font-weight:700;padding:0 3px;display:none;align-items:center;justify-content:center;}
+  .bnav-badge.show{display:flex;}
 
-  a { color: inherit; text-decoration: none; }
-  button { cursor: pointer; font-family: var(--font-body); border: none; }
-  input, textarea, select { font-family: var(--font-body); }
+  /* HERO */
+  .hero{padding:3.5rem 1.25rem 3rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:500px;height:250px;background:radial-gradient(ellipse at center,rgba(124,111,255,0.12) 0%,transparent 70%);pointer-events:none;}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:99px;border:1px solid rgba(124,111,255,0.3);background:rgba(124,111,255,0.08);color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:1.2rem;}
+  .hero h1{font-family:var(--font-head);font-size:clamp(2.1rem,7vw,3.8rem);font-weight:800;letter-spacing:-1.5px;line-height:1.08;margin-bottom:1rem;}
+  .hero h1 em{font-style:normal;color:var(--accent);}
+  .hero p{font-size:16px;color:var(--text2);max-width:400px;margin:0 auto 2rem;line-height:1.7;}
+  .hero-cta{display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:var(--r);background:var(--accent);color:#fff;font-size:15px;font-weight:600;transition:var(--transition);}
+  .hero-cta:active{background:var(--accent2);transform:scale(0.97);}
+  .hero-stats{display:flex;justify-content:center;gap:2rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+  .hero-stat .num{font-family:var(--font-head);font-size:20px;font-weight:700;}
+  .hero-stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px;}
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+  section{padding:2.5rem 1.25rem;max-width:1100px;margin:0 auto;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:6px;}
+  .section-title{font-family:var(--font-head);font-size:20px;font-weight:700;}
+  .section-sub{font-size:12px;color:var(--text3);}
 
-  /* ── NAV ── */
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(10,10,15,0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 60px;
-  }
-  .nav-logo {
-    font-family: var(--font-head);
-    font-size: 20px; font-weight: 800;
-    letter-spacing: -0.5px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .nav-logo span { color: var(--accent); }
-  .nav-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
-  .nav-links { display: flex; align-items: center; gap: 8px; }
-  .nav-links a {
-    padding: 6px 14px;
-    border-radius: var(--r);
-    font-size: 14px; font-weight: 500; color: var(--text2);
-    transition: var(--transition);
-  }
-  .nav-links a:hover { color: var(--text); background: var(--surface); }
-  .btn-earn {
-    padding: 7px 18px;
-    border-radius: var(--r);
-    background: transparent;
-    border: 1px solid var(--border2);
-    color: var(--green);
-    font-size: 13px; font-weight: 600;
-    letter-spacing: 0.3px;
-    transition: var(--transition);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .btn-earn:hover { background: rgba(34,209,151,0.1); border-color: var(--green); }
-  .btn-earn::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-  .btn-admin {
-    padding: 7px 14px;
-    border-radius: var(--r);
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    color: var(--text2);
-    font-size: 13px;
-    transition: var(--transition);
-  }
-  .btn-admin:hover { color: var(--text); }
+  /* PRODUCTS */
+  .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .product-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:var(--transition);cursor:pointer;position:relative;}
+  .product-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+  .product-card.featured{border-color:rgba(124,111,255,0.35);}
+  .product-card.featured::before{content:'Featured';position:absolute;top:10px;right:10px;padding:3px 9px;border-radius:99px;background:rgba(124,111,255,0.2);color:var(--accent);font-size:10px;font-weight:600;}
+  .card-thumb{width:100%;height:155px;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .card-thumb img{width:100%;height:100%;object-fit:cover;}
+  .card-thumb-placeholder{width:58px;height:58px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--bg2);}
+  .card-body{padding:13px 15px 15px;}
+  .card-tag{display:inline-block;padding:2px 9px;border-radius:99px;background:var(--bg3);color:var(--text3);font-size:10px;font-weight:500;margin-bottom:6px;}
+  .card-title{font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:5px;}
+  .card-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;}
+  .card-price{font-family:var(--font-head);font-size:18px;font-weight:700;}
+  .card-price .currency{font-size:12px;font-weight:500;color:var(--text2);vertical-align:top;margin-top:3px;display:inline-block;}
+  .card-votes{display:flex;align-items:center;gap:5px;}
+  .vote-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:3px 8px;color:var(--text2);font-size:11px;display:flex;align-items:center;gap:3px;transition:var(--transition);}
+  .vote-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .vote-btn.up.active{background:rgba(124,111,255,0.12);border-color:var(--accent);color:var(--accent);}
+  .vote-btn.down.active{background:rgba(255,94,122,0.1);border-color:var(--red);color:var(--red);}
 
-  /* ── HERO ── */
-  .hero {
-    padding: 5rem 2rem 4rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 600px; height: 300px;
-    background: radial-gradient(ellipse at center, rgba(124,111,255,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 14px; border-radius: 99px;
-    border: 1px solid rgba(124,111,255,0.3);
-    background: rgba(124,111,255,0.08);
-    color: var(--accent); font-size: 12px; font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    margin-bottom: 1.5rem;
-  }
-  .hero h1 {
-    font-family: var(--font-head);
-    font-size: clamp(2.4rem, 5vw, 4rem);
-    font-weight: 800; letter-spacing: -1.5px;
-    line-height: 1.1; margin-bottom: 1.2rem;
-  }
-  .hero h1 em { font-style: normal; color: var(--accent); }
-  .hero p {
-    font-size: 17px; color: var(--text2); max-width: 480px;
-    margin: 0 auto 2.5rem; line-height: 1.7;
-  }
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 13px 28px; border-radius: var(--r);
-    background: var(--accent); color: #fff;
-    font-size: 15px; font-weight: 600;
-    transition: var(--transition);
-  }
-  .hero-cta:hover { background: var(--accent2); transform: translateY(-1px); }
-  .hero-stats {
-    display: flex; justify-content: center; gap: 3rem;
-    margin-top: 3rem; padding-top: 2rem;
-    border-top: 1px solid var(--border);
-  }
-  .hero-stat { text-align: center; }
-  .hero-stat .num { font-family: var(--font-head); font-size: 22px; font-weight: 700; }
-  .hero-stat .lbl { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+  /* MINI IDEAS GRID (store page) */
+  .ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:11px;}
+  .idea-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;display:flex;align-items:flex-start;gap:10px;transition:var(--transition);}
+  .idea-card:hover{border-color:var(--border2);}
+  .idea-icon{width:36px;height:36px;flex-shrink:0;border-radius:9px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .idea-info{flex:1;}
+  .idea-name{font-weight:600;font-size:13px;margin-bottom:3px;}
+  .idea-desc{font-size:11px;color:var(--text3);line-height:1.5;}
+  .idea-votes{display:flex;gap:5px;margin-top:8px;}
+  .idea-vote{background:none;border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--text2);font-size:11px;display:flex;align-items:center;gap:2px;transition:var(--transition);}
+  .idea-vote:hover{border-color:var(--accent);color:var(--accent);}
+  .idea-vote.voted{background:rgba(124,111,255,0.1);border-color:var(--accent);color:var(--accent);}
+  .idea-vote.voted-down{background:rgba(255,94,122,0.08);border-color:var(--red);color:var(--red);}
 
-  /* ── SECTION ── */
-  section { padding: 3.5rem 2rem; max-width: 1100px; margin: 0 auto; }
-  .section-head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-bottom: 2rem;
+  /* IDEAS PAGE */
+  /* filter drawer overlay */
+  .filter-overlay{display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);}
+  .filter-overlay.open{display:block;}
+  /* filter drawer */
+  .filter-drawer{
+    position:fixed;left:0;top:0;bottom:0;z-index:290;
+    width:255px;
+    background:var(--bg2);border-right:1px solid var(--border2);
+    display:flex;flex-direction:column;
+    transform:translateX(-100%);
+    transition:transform 0.27s cubic-bezier(.4,0,.2,1);
+    padding-bottom:var(--bnh);
   }
-  .section-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; }
-  .section-sub { font-size: 13px; color: var(--text3); }
+  .filter-drawer.open{transform:translateX(0);}
+  .drawer-head{padding:16px 14px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .drawer-title{font-family:var(--font-head);font-size:15px;font-weight:700;}
+  .drawer-close{width:29px;height:29px;border-radius:7px;background:var(--bg3);border:none;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+  .drawer-close:hover{color:var(--text);}
+  .drawer-body{flex:1;overflow-y:auto;padding:10px 8px;}
+  .drawer-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;padding:5px 8px 3px;}
+  .filter-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--text2);font-size:14px;text-align:left;transition:var(--transition);margin-bottom:1px;-webkit-tap-highlight-color:transparent;}
+  .filter-btn:hover,.filter-btn:active{background:var(--surface);color:var(--text);}
+  .filter-btn.active{background:var(--surface);color:var(--text);font-weight:600;}
+  .filter-count{font-size:11px;color:var(--text3);background:var(--bg3);border-radius:99px;padding:1px 7px;}
+  .filter-btn.active .filter-count{background:rgba(124,111,255,0.15);color:var(--accent);}
+  .drawer-div{height:1px;background:var(--border);margin:9px 8px;}
+  .sort-btns-v{display:flex;flex-direction:column;gap:1px;}
+  .sort-btn{width:100%;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--text2);font-size:14px;text-align:left;transition:var(--transition);}
+  .sort-btn:hover{background:var(--surface);color:var(--text);}
+  .sort-btn.active{background:rgba(124,111,255,0.1);color:var(--accent);font-weight:600;}
 
-  /* ── PRODUCTS GRID ── */
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+  /* ideas page topbar */
+  .ideas-topbar{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 1.25rem 10px;
+    border-bottom:1px solid var(--border);
+    position:sticky;top:54px;z-index:90;
+    background:rgba(10,10,15,0.96);backdrop-filter:blur(16px);
   }
-  .product-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r2);
-    overflow: hidden;
-    transition: var(--transition);
-    cursor: pointer;
-    position: relative;
-  }
-  .product-card:hover { border-color: var(--border2); transform: translateY(-3px); }
-  .product-card.featured { border-color: rgba(124,111,255,0.35); }
-  .product-card.featured::before {
-    content: 'Featured';
-    position: absolute; top: 12px; right: 12px;
-    padding: 3px 10px; border-radius: 99px;
-    background: rgba(124,111,255,0.2); color: var(--accent);
-    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
-  }
-  .card-thumb {
-    width: 100%; height: 180px;
-    background: var(--bg3);
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; position: relative;
-  }
-  .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .card-thumb-placeholder {
-    width: 64px; height: 64px;
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    background: var(--bg2);
-  }
-  .card-body { padding: 16px 18px 18px; }
-  .card-tag {
-    display: inline-block; padding: 3px 10px; border-radius: 99px;
-    background: var(--bg3); color: var(--text3);
-    font-size: 11px; font-weight: 500; letter-spacing: 0.4px;
-    margin-bottom: 8px;
-  }
-  .card-title { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-  .card-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .card-footer { display: flex; align-items: center; justify-content: space-between; }
-  .card-price { font-family: var(--font-head); font-size: 19px; font-weight: 700; }
-  .card-price .currency { font-size: 13px; font-weight: 500; color: var(--text2); vertical-align: top; margin-top: 3px; display: inline-block; }
-  .card-votes {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 13px; color: var(--text3);
-  }
-  .vote-btn {
-    background: none; border: 1px solid var(--border);
-    border-radius: 8px; padding: 4px 10px;
-    color: var(--text2); font-size: 12px;
-    display: flex; align-items: center; gap: 4px;
-    transition: var(--transition);
-  }
-  .vote-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .vote-btn.up.active { background: rgba(124,111,255,0.12); border-color: var(--accent); color: var(--accent); }
-  .vote-btn.down.active { background: rgba(255,94,122,0.1); border-color: var(--red); color: var(--red); }
+  .filter-toggle-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border2);color:var(--text2);font-size:13px;font-weight:500;transition:var(--transition);flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+  .filter-toggle-btn:active{background:var(--surface2);}
+  .filter-toggle-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
+  .topbar-info{flex:1;min-width:0;}
+  .topbar-title{font-family:var(--font-head);font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar-count{font-size:12px;color:var(--text3);}
+  .active-filter-pill{display:none;align-items:center;gap:4px;padding:4px 9px;border-radius:99px;background:rgba(124,111,255,0.12);border:1px solid rgba(124,111,255,0.25);color:var(--accent);font-size:11px;font-weight:600;flex-shrink:0;}
+  .active-filter-pill.show{display:inline-flex;}
+  .active-filter-pill button{background:none;border:none;color:inherit;font-size:11px;padding:0;line-height:1;cursor:pointer;}
 
-  /* ── COMING SOON ── */
-  .ideas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 14px;
-  }
-  .idea-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 16px;
-    display: flex; align-items: flex-start; gap: 12px;
-    transition: var(--transition);
-  }
-  .idea-card:hover { border-color: var(--border2); }
-  .idea-icon {
-    width: 40px; height: 40px; flex-shrink: 0;
-    border-radius: 10px; background: var(--bg3);
-    display: flex; align-items: center; justify-content: center; font-size: 20px;
-  }
-  .idea-info { flex: 1; }
-  .idea-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-  .idea-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
-  .idea-votes {
-    display: flex; gap: 6px; margin-top: 10px;
-  }
-  .idea-vote {
-    background: none; border: 1px solid var(--border);
-    border-radius: 6px; padding: 3px 8px;
-    color: var(--text2); font-size: 12px;
-    display: flex; align-items: center; gap: 3px;
-    transition: var(--transition);
-  }
-  .idea-vote:hover { border-color: var(--accent); color: var(--accent); }
-  .idea-vote.voted { background: rgba(124,111,255,0.1); border-color: var(--accent); color: var(--accent); }
+  /* ideas list */
+  .ideas-content{padding:14px 1.25rem 0;}
+  .ideas-full-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+  .idea-full-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:15px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;transition:var(--transition);}
+  .idea-full-card:hover{border-color:var(--border2);}
+  .idea-full-card.top-voted{border-color:rgba(124,111,255,0.35);}
+  .idea-full-header{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+  .idea-full-emoji{font-size:20px;line-height:1;flex-shrink:0;}
+  .idea-full-name{font-family:var(--font-head);font-size:15px;font-weight:700;}
+  .idea-full-category{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--bg3);color:var(--text3);font-size:10px;font-weight:500;}
+  .top-voted-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;background:rgba(124,111,255,0.12);color:var(--accent);font-size:10px;font-weight:600;}
+  .idea-full-desc{font-size:13px;color:var(--text2);line-height:1.6;}
+  .idea-full-meta{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:11px;color:var(--text3);flex-wrap:wrap;}
+  .idea-vote-controls{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:46px;flex-shrink:0;}
+  .big-vote-btn{width:40px;height:33px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--transition);-webkit-tap-highlight-color:transparent;}
+  .big-vote-btn:active{transform:scale(0.88);}
+  .big-vote-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .big-vote-btn.up.active{background:rgba(124,111,255,0.15);border-color:var(--accent);color:var(--accent);}
+  .big-vote-btn.down.active{background:rgba(255,94,122,0.1);border-color:var(--red);color:var(--red);}
+  .vote-score{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text);}
+  .vote-score.positive{color:var(--green);}
+  .vote-score.negative{color:var(--red);}
+  .ideas-empty{text-align:center;padding:3rem 2rem;color:var(--text3);}
+  .ideas-empty .ei{font-size:44px;margin-bottom:14px;}
 
-  /* ── PRODUCT MODAL ── */
-  .overlay {
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(6px);
-    display: none; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .overlay.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: var(--r2);
-    width: 100%; max-width: 640px;
-    max-height: 90vh; overflow-y: auto;
-    animation: slideUp 0.25s ease;
-  }
-  @keyframes slideUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-  .modal-header {
-    padding: 20px 24px 0;
-    display: flex; align-items: flex-start; justify-content: space-between;
-  }
-  .modal-close {
-    background: var(--bg3); border: none;
-    width: 32px; height: 32px; border-radius: 8px;
-    color: var(--text2); font-size: 18px; line-height: 1;
-    flex-shrink: 0;
-    transition: var(--transition);
-  }
-  .modal-close:hover { color: var(--text); background: var(--surface2); }
-  .modal-screenshots {
-    display: flex; gap: 8px; padding: 16px 24px;
-    overflow-x: auto;
-  }
-  .modal-screenshots img, .modal-screenshot-ph {
-    height: 140px; border-radius: 10px; flex-shrink: 0;
-    border: 1px solid var(--border);
-  }
-  .modal-screenshot-ph {
-    width: 220px; background: var(--bg3);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text3); font-size: 13px;
-  }
-  .modal-body { padding: 0 24px 24px; }
-  .modal-tag { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-  .modal-title { font-family: var(--font-head); font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-  .modal-desc { color: var(--text2); font-size: 14px; line-height: 1.75; margin-bottom: 20px; }
-  .features-list { list-style: none; margin-bottom: 24px; }
-  .features-list li {
-    font-size: 14px; padding: 7px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px; color: var(--text2);
-  }
-  .features-list li:last-child { border-bottom: none; }
-  .features-list li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 13px; }
-  .modal-buy-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .modal-price { font-family: var(--font-head); font-size: 28px; font-weight: 800; }
-  .modal-price small { font-size: 14px; color: var(--text3); font-weight: 400; }
-  .btn-buy {
-    flex: 1; padding: 13px 28px;
-    border-radius: var(--r);
-    background: var(--accent); color: #fff;
-    font-size: 15px; font-weight: 600;
-    transition: var(--transition);
-    min-width: 160px;
-  }
-  .btn-buy:hover { background: var(--accent2); transform: translateY(-1px); }
-  .video-wrap {
-    position: relative; border-radius: var(--r);
-    overflow: hidden; margin-bottom: 20px;
-    background: var(--bg3); aspect-ratio: 16/9;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
-  .video-placeholder {
-    color: var(--text3); text-align: center;
-    font-size: 13px;
-  }
-  .video-placeholder .play-icon {
-    width: 48px; height: 48px; border-radius: 50%;
-    border: 2px solid var(--border2);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 10px; font-size: 20px; color: var(--text2);
-  }
+  /* IDEAS PAGE: submit form at BOTTOM */
+  .ideas-submit-section{border-top:1px solid var(--border);padding:22px 1.25rem 14px;background:var(--bg);}
+  .submit-section-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .submit-section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+  .submit-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:18px;}
+  .submit-card h3{font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:3px;}
+  .submit-card>p{font-size:13px;color:var(--text2);margin-bottom:14px;}
+  .submit-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  @media(max-width:460px){.submit-row{grid-template-columns:1fr;}}
+  .submit-actions{display:flex;gap:10px;align-items:center;margin-top:13px;}
+  .char-count{font-size:11px;color:var(--text3);margin-left:auto;}
+  .submit-note{font-size:12px;color:var(--text3);}
 
-  /* ── CHECKOUT MODAL ── */
-  .checkout-modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: var(--r2);
-    width: 100%; max-width: 420px;
-    padding: 28px;
-    animation: slideUp 0.25s ease;
-  }
-  .checkout-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .checkout-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
-  .form-group { margin-bottom: 16px; }
-  .form-label { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: block; }
-  .form-input {
-    width: 100%; padding: 10px 14px;
-    background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: var(--r); color: var(--text);
-    font-size: 14px; outline: none;
-    transition: var(--transition);
-  }
-  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,111,255,0.1); }
-  .checkout-total {
-    background: var(--bg3); border-radius: var(--r);
-    padding: 14px; margin-bottom: 16px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .checkout-total .label { font-size: 13px; color: var(--text2); }
-  .checkout-total .amount { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
-  .btn-pay {
-    width: 100%; padding: 13px;
-    border-radius: var(--r);
-    background: var(--accent); color: #fff;
-    font-size: 15px; font-weight: 600;
-    transition: var(--transition);
-  }
-  .btn-pay:hover { background: var(--accent2); }
-  .checkout-note { font-size: 11px; color: var(--text3); text-align: center; margin-top: 10px; }
-  .checkout-note.error { color: var(--red); }
+  /* MODALS */
+  .overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:14px;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:100%;max-width:600px;max-height:88vh;overflow-y:auto;animation:slideUp 0.22s ease;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .modal-header{padding:16px 18px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+  .modal-close{background:var(--bg3);border:none;width:30px;height:30px;border-radius:7px;color:var(--text2);font-size:16px;flex-shrink:0;transition:var(--transition);display:flex;align-items:center;justify-content:center;}
+  .modal-close:hover{color:var(--text);}
+  .modal-screenshots{display:flex;gap:7px;padding:12px 18px;overflow-x:auto;}
+  .modal-screenshots img,.modal-screenshot-ph{height:125px;border-radius:8px;flex-shrink:0;border:1px solid var(--border);}
+  .modal-screenshot-ph{width:200px;background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;}
+  .modal-body{padding:0 18px 20px;}
+  .modal-tag{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+  .modal-title{font-family:var(--font-head);font-size:21px;font-weight:800;margin-bottom:8px;}
+  .modal-desc{color:var(--text2);font-size:13px;line-height:1.75;margin-bottom:16px;}
+  .features-list{list-style:none;margin-bottom:20px;}
+  .features-list li{font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;color:var(--text2);}
+  .features-list li:last-child{border-bottom:none;}
+  .features-list li::before{content:'✓';color:var(--green);font-weight:700;font-size:12px;}
+  .modal-buy-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .modal-price{font-family:var(--font-head);font-size:24px;font-weight:800;}
+  .modal-price small{font-size:12px;color:var(--text3);font-weight:400;}
+  .btn-buy{flex:1;padding:12px 20px;border-radius:var(--r);background:var(--accent);color:#fff;font-size:14px;font-weight:600;transition:var(--transition);min-width:140px;}
+  .btn-buy:active{background:var(--accent2);transform:scale(0.97);}
+  .video-wrap{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:16px;background:var(--bg3);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;}
+  .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+  .video-placeholder{color:var(--text3);text-align:center;font-size:12px;}
+  .video-placeholder .play-icon{width:44px;height:44px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 9px;font-size:17px;color:var(--text2);}
 
-  /* ── SUCCESS MODAL ── */
-  .success-modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: var(--r2);
-    width: 100%; max-width: 420px;
-    padding: 32px;
-    text-align: center;
-    animation: slideUp 0.25s ease;
-  }
-  .success-icon {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: rgba(34,209,151,0.12); border: 2px solid var(--green);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; margin: 0 auto 20px;
-  }
-  .success-title { font-family: var(--font-head); font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-  .success-sub { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
-  .success-meta {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 12px 14px;
-    margin-bottom: 18px;
-    text-align: left;
-    font-size: 12px;
-    color: var(--text2);
-  }
-  .success-meta strong { color: var(--text); font-weight: 600; }
-  .license-box {
-    background: var(--bg3); border: 1px dashed var(--border2);
-    border-radius: var(--r); padding: 12px 16px;
-    font-family: monospace; font-size: 14px; letter-spacing: 1px;
-    color: var(--accent); margin-bottom: 20px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .btn-copy {
-    background: var(--surface2); border: none;
-    padding: 4px 10px; border-radius: 6px;
-    color: var(--text2); font-size: 12px;
-    transition: var(--transition);
-  }
-  .btn-copy:hover { color: var(--text); }
-  .success-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn-download {
-    flex: 1; padding: 11px;
-    border-radius: var(--r);
-    background: var(--accent); color: #fff;
-    font-size: 14px; font-weight: 600;
-    transition: var(--transition); min-width: 120px;
-  }
-  .btn-download:hover { background: var(--accent2); }
-  .btn-tutorial {
-    flex: 1; padding: 11px;
-    border-radius: var(--r);
-    background: var(--surface2); color: var(--text2);
-    border: 1px solid var(--border2);
-    font-size: 14px; font-weight: 500;
-    transition: var(--transition); min-width: 120px;
-  }
-  .btn-tutorial:hover { color: var(--text); }
+  /* CHECKOUT */
+  .checkout-modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:100%;max-width:390px;padding:22px;animation:slideUp 0.22s ease;}
+  .checkout-title{font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:3px;}
+  .checkout-sub{font-size:13px;color:var(--text2);margin-bottom:18px;}
+  .form-group{margin-bottom:13px;}
+  .form-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;display:block;}
+  .form-input{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:14px;outline:none;transition:var(--transition);}
+  .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,111,255,0.1);}
+  .checkout-total{background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:13px;display:flex;justify-content:space-between;align-items:center;}
+  .checkout-total .label{font-size:13px;color:var(--text2);}
+  .checkout-total .amount{font-family:var(--font-head);font-size:19px;font-weight:700;}
+  .btn-pay{width:100%;padding:12px;border-radius:var(--r);background:var(--accent);color:#fff;font-size:14px;font-weight:600;transition:var(--transition);}
+  .btn-pay:active:not(:disabled){background:var(--accent2);}
+  .btn-pay:disabled{opacity:0.6;cursor:not-allowed;}
+  .checkout-note{font-size:11px;color:var(--text3);text-align:center;margin-top:9px;}
+  .checkout-note.error{color:var(--red);}
 
-  /* ── EARN PAGE ── */
-  .earn-page { display: none; }
-  .earn-page.show { display: block; }
-  .earn-hero {
-    text-align: center;
-    padding: 4rem 2rem 3rem;
-    max-width: 600px; margin: 0 auto;
-  }
-  .earn-hero h1 { font-family: var(--font-head); font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
-  .earn-hero h1 em { font-style: normal; color: var(--green); }
-  .earn-hero p { color: var(--text2); font-size: 16px; line-height: 1.7; }
-  .earn-steps {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px; max-width: 800px; margin: 0 auto 3rem; padding: 0 2rem;
-  }
-  .earn-step {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r2); padding: 24px;
-  }
-  .earn-step-num {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: rgba(34,209,151,0.12); color: var(--green);
-    font-family: var(--font-head); font-size: 16px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 14px;
-  }
-  .earn-step h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-  .earn-step p { font-size: 13px; color: var(--text2); line-height: 1.6; }
-  .earn-ref-box {
-    max-width: 480px; margin: 0 auto; padding: 0 2rem 3rem;
-  }
-  .earn-ref-card {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: var(--r2); padding: 24px;
-  }
-  .earn-ref-card h3 { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-  .earn-ref-card p { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
-  .ref-display {
-    background: var(--bg3); border: 1px dashed var(--border2);
-    border-radius: var(--r); padding: 12px 16px;
-    font-family: monospace; font-size: 16px; font-weight: 600;
-    color: var(--green); letter-spacing: 2px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .earn-rate {
-    background: rgba(34,209,151,0.08); border: 1px solid rgba(34,209,151,0.2);
-    border-radius: var(--r); padding: 14px 18px;
-    margin-top: 14px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .earn-rate .rate-num { font-family: var(--font-head); font-size: 28px; font-weight: 800; color: var(--green); }
-  .earn-rate .rate-label { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  /* SUCCESS */
+  .success-modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:100%;max-width:390px;padding:26px;text-align:center;animation:slideUp 0.22s ease;position:relative;}
+  .success-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:none;width:28px;height:28px;border-radius:7px;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+  .success-close:hover{color:var(--text);}
+  .success-icon{width:58px;height:58px;border-radius:50%;background:rgba(34,209,151,0.12);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;}
+  .success-title{font-family:var(--font-head);font-size:19px;font-weight:800;margin-bottom:6px;}
+  .success-sub{font-size:13px;color:var(--text2);margin-bottom:18px;}
+  .success-meta{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;text-align:left;font-size:12px;color:var(--text2);}
+  .success-meta strong{color:var(--text);font-weight:600;}
+  .license-box{background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--r);padding:10px 13px;font-family:monospace;font-size:13px;letter-spacing:0.8px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;word-break:break-all;text-align:left;gap:7px;}
+  .btn-copy{background:var(--surface2);border:none;padding:3px 9px;border-radius:5px;color:var(--text2);font-size:11px;transition:var(--transition);flex-shrink:0;}
+  .btn-copy:hover{color:var(--text);}
+  .success-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn-download{flex:1;padding:10px;border-radius:var(--r);background:var(--accent);color:#fff;font-size:13px;font-weight:600;transition:var(--transition);min-width:100px;}
+  .btn-download:active{background:var(--accent2);}
+  .btn-tutorial{flex:1;padding:10px;border-radius:var(--r);background:var(--surface2);color:var(--text2);border:1px solid var(--border2);font-size:13px;font-weight:500;transition:var(--transition);min-width:100px;}
+  .btn-tutorial:hover{color:var(--text);}
 
-  /* ── ADMIN PANEL ── */
-  .admin-page { display: none; }
-  .admin-page.show { display: block; }
-  .admin-nav {
-    background: var(--bg2); border-bottom: 1px solid var(--border);
-    padding: 12px 2rem; display: flex; gap: 10px; align-items: center;
-  }
-  .admin-nav-title { font-family: var(--font-head); font-weight: 700; margin-right: 16px; font-size: 15px; }
-  .tab-btn {
-    padding: 6px 14px; border-radius: 8px;
-    background: none; border: 1px solid transparent;
-    color: var(--text2); font-size: 13px; font-weight: 500;
-    transition: var(--transition);
-  }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { background: var(--surface); border-color: var(--border2); color: var(--text); }
-  .admin-content { max-width: 900px; margin: 0 auto; padding: 2rem; }
-  .admin-section { display: none; }
-  .admin-section.show { display: block; }
-  .admin-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r2); overflow: hidden; margin-bottom: 16px;
-  }
-  .admin-card-head {
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer;
-  }
-  .admin-card-head h3 { font-size: 14px; font-weight: 600; }
-  .admin-card-body { padding: 18px; }
-  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .admin-grid.single { grid-template-columns: 1fr; }
-  .field-group { display: flex; flex-direction: column; gap: 6px; }
-  .field-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; }
-  .field-input {
-    width: 100%; padding: 9px 12px;
-    background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: 8px; color: var(--text);
-    font-size: 13px; outline: none;
-    transition: var(--transition); resize: vertical;
-  }
-  .field-input:focus { border-color: var(--accent); }
-  .field-input.textarea { min-height: 80px; }
-  .admin-actions { display: flex; gap: 10px; margin-top: 18px; }
-  .btn-save {
-    padding: 9px 20px; border-radius: 8px;
-    background: var(--accent); color: #fff;
-    font-size: 13px; font-weight: 600;
-    transition: var(--transition);
-  }
-  .btn-save:hover { background: var(--accent2); }
-  .btn-danger {
-    padding: 9px 20px; border-radius: 8px;
-    background: rgba(255,94,122,0.1); color: var(--red);
-    border: 1px solid rgba(255,94,122,0.2);
-    font-size: 13px; font-weight: 500;
-    transition: var(--transition);
-  }
-  .btn-danger:hover { background: rgba(255,94,122,0.15); }
-  .btn-add {
-    padding: 9px 20px; border-radius: 8px;
-    background: var(--surface2); color: var(--text2);
-    border: 1px solid var(--border2);
-    font-size: 13px; font-weight: 500;
-    transition: var(--transition);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .btn-add:hover { color: var(--text); }
-  .screenshots-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-  .screenshot-thumb {
-    width: 80px; height: 56px; border-radius: 6px;
-    background: var(--bg3); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; color: var(--text3); overflow: hidden;
-    position: relative; cursor: pointer;
-  }
-  .screenshot-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .screenshot-thumb .remove {
-    position: absolute; top: 2px; right: 2px;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: rgba(255,94,122,0.8); color: #fff;
-    font-size: 10px; display: flex; align-items: center; justify-content: center;
-    opacity: 0; transition: var(--transition);
-  }
-  .screenshot-thumb:hover .remove { opacity: 1; }
-  .toast {
-    position: fixed; bottom: 24px; right: 24px; z-index: 999;
-    background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: var(--r); padding: 12px 18px;
-    font-size: 14px; animation: fadeInUp 0.3s ease;
-    display: none;
-  }
-  .toast.show { display: block; }
-  .toast.success { border-color: rgba(34,209,151,0.3); color: var(--green); }
-  @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+  /* EARN */
+  .earn-page{display:none;}
+  .earn-hero{text-align:center;padding:3rem 1.25rem 2.5rem;max-width:540px;margin:0 auto;}
+  .earn-hero h1{font-family:var(--font-head);font-size:clamp(2rem,7vw,2.8rem);font-weight:800;margin-bottom:1rem;}
+  .earn-hero h1 em{font-style:normal;color:var(--green);}
+  .earn-hero p{color:var(--text2);font-size:15px;line-height:1.7;}
+  .earn-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;max-width:780px;margin:0 auto 2.5rem;padding:0 1.25rem;}
+  .earn-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;}
+  .earn-step-num{width:32px;height:32px;border-radius:8px;background:rgba(34,209,151,0.12);color:var(--green);font-family:var(--font-head);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:11px;}
+  .earn-step h3{font-size:13px;font-weight:600;margin-bottom:4px;}
+  .earn-step p{font-size:12px;color:var(--text2);line-height:1.6;}
+  .earn-ref-box{max-width:430px;margin:0 auto;padding:0 1.25rem 2.5rem;}
+  .earn-ref-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:20px;}
+  .earn-ref-card h3{font-family:var(--font-head);font-size:15px;font-weight:700;margin-bottom:4px;}
+  .earn-ref-card p{font-size:13px;color:var(--text2);margin-bottom:13px;}
+  .ref-display{background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--r);padding:10px 13px;font-family:monospace;font-size:15px;font-weight:600;color:var(--green);letter-spacing:2px;display:flex;align-items:center;justify-content:space-between;}
+  .earn-rate{background:rgba(34,209,151,0.08);border:1px solid rgba(34,209,151,0.2);border-radius:var(--r);padding:12px 15px;margin-top:12px;display:flex;align-items:center;gap:12px;}
+  .earn-rate .rate-num{font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--green);}
+  .earn-rate .rate-label{font-size:13px;color:var(--text2);line-height:1.5;}
 
-  .store-page {}
-  .main-page-wrap > .hero-outer { display: block; }
+  /* ADMIN */
+  .admin-page{display:none;}
+  .admin-nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 1.25rem;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+  .admin-nav-title{font-family:var(--font-head);font-weight:700;margin-right:10px;font-size:13px;}
+  .tab-btn{padding:5px 11px;border-radius:7px;background:none;border:1px solid transparent;color:var(--text2);font-size:12px;font-weight:500;transition:var(--transition);}
+  .tab-btn:hover{color:var(--text);}
+  .tab-btn.active{background:var(--surface);border-color:var(--border2);color:var(--text);}
+  .admin-content{max-width:840px;margin:0 auto;padding:1.25rem;}
+  .admin-section{display:none;}
+  .admin-section.show{display:block;}
+  .admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:11px;}
+  .admin-card-head{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .admin-card-head h3{font-size:13px;font-weight:600;}
+  .admin-card-body{padding:15px;}
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  @media(max-width:560px){.admin-grid{grid-template-columns:1fr;}}
+  .field-group{display:flex;flex-direction:column;gap:4px;}
+  .field-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;}
+  .field-input{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;transition:var(--transition);resize:vertical;}
+  .field-input:focus{border-color:var(--accent);}
+  .field-input.textarea{min-height:72px;}
+  .admin-actions{display:flex;gap:7px;margin-top:14px;}
+  .btn-save{padding:8px 17px;border-radius:7px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;transition:var(--transition);}
+  .btn-save:hover{background:var(--accent2);}
+  .btn-danger{padding:8px 17px;border-radius:7px;background:rgba(255,94,122,0.1);color:var(--red);border:1px solid rgba(255,94,122,0.2);font-size:13px;font-weight:500;transition:var(--transition);}
+  .btn-danger:hover{background:rgba(255,94,122,0.15);}
+  .btn-add{padding:8px 16px;border-radius:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);font-size:13px;font-weight:500;transition:var(--transition);display:flex;align-items:center;gap:5px;}
+  .btn-add:hover{color:var(--text);}
 
-  /* ── FOOTER ── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 2rem; text-align: center;
-    font-size: 12px; color: var(--text3);
-  }
-  footer a { color: var(--text2); }
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:1.75rem 1.25rem;text-align:center;font-size:12px;color:var(--text3);}
+  footer a{color:var(--text2);}
 
-  @media (max-width: 640px) {
-    .hero h1 { font-size: 2rem; }
-    .hero-stats { gap: 1.5rem; }
-    .admin-grid { grid-template-columns: 1fr; }
-    nav { padding: 0 1rem; }
-    .nav-links a { display: none; }
-  }
+  /* EASTER EGG */
+  .egg-btn{background:none;border:none;font-size:22px;cursor:pointer;padding:6px;transition:var(--transition);display:inline-block;-webkit-tap-highlight-color:transparent;user-select:none;}
+  .egg-btn:active{transform:scale(1.5) rotate(20deg);}
+  .egg-hint{font-size:10px;color:var(--text3);opacity:0;transition:opacity 0.5s;margin-top:4px;height:14px;}
+  .egg-hint.show{opacity:1;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:calc(var(--bnh) + 10px);right:14px;z-index:999;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 15px;font-size:13px;animation:fadeInUp 0.23s ease;display:none;max-width:calc(100vw - 28px);}
+  .toast.show{display:block;}
+  .toast.success{border-color:rgba(34,209,151,0.3);color:var(--green);}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
-<!-- ── NAVIGATION ── -->
-<nav>
+<!-- TOP NAV -->
+<nav class="top-nav">
   <div class="nav-logo"><span class="dot"></span> App<span>Vault</span></div>
-  <div class="nav-links">
-    <a href="#" onclick="showPage('store')">Store</a>
-    <a href="#" onclick="showPage('store'); scrollToSection('#coming-soon')">Coming Soon</a>
-    <button class="btn-earn" onclick="showPage('earn')">Earn 30%</button>
-    <button class="btn-admin" onclick="showAdminLogin()">⚙ Admin</button>
-  </div>
+  <button class="btn-earn" onclick="showPage('earn')">Earn 20%</button>
 </nav>
 
-<!-- ══════════════════════════════════════════ STORE PAGE ══════════════════════════════════════════ -->
-<div id="page-store" class="store-page">
+<!-- LEFT SIDEBAR NAV -->
+<nav class="left-nav">
+  <button class="lnav-item active" id="lnav-store" onclick="showPage('store')" title="Store">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  </button>
+  <button class="lnav-item" id="lnav-ideas" onclick="showPage('ideas')" title="Ideas">
+    <svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1 2 2v3h-2v-3a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v3h-2v-3a2 2 0 0 1 2-2h8zm0-5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm-6-3a1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-3 0 1.5 1.5 0 0 0 1.5 1.5zm0 9a2 2 0 0 1 2 2v3h-2v-3a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3H3v-3a2 2 0 0 1 2-2h7zM9 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+  </button>
+</nav>
 
-  <!-- HERO -->
+<!-- ══ STORE PAGE ══ -->
+<div id="page-store">
   <div class="hero">
     <div class="hero-badge">⚡ Premium Digital Tools</div>
     <h1>Apps that <em>actually</em><br>get things done</h1>
-    <p>Powerful, focused tools built for productivity. One-time payment, lifetime access, instant delivery.</p>
+    <p>One-time payment, lifetime access, instant delivery.</p>
     <a href="#products" class="hero-cta">Browse Apps →</a>
     <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="num" id="stat-apps">0</div>
-        <div class="lbl">Apps Available</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num" id="stat-customers">—</div>
-        <div class="lbl">Happy Customers</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">30%</div>
-        <div class="lbl">Referral Earnings</div>
-      </div>
+      <div class="hero-stat"><div class="num" id="stat-apps">0</div><div class="lbl">Apps</div></div>
+      <div class="hero-stat"><div class="num" id="stat-customers">—</div><div class="lbl">Customers</div></div>
+      <div class="hero-stat"><div class="num">20%</div><div class="lbl">Referral</div></div>
     </div>
   </div>
-
-  <!-- PRODUCTS -->
   <section id="products">
     <div class="section-head">
       <div class="section-title">All Apps</div>
       <div class="section-sub" id="product-count"></div>
     </div>
-    <div class="products-grid" id="products-grid">
-      <!-- rendered by JS -->
-    </div>
+    <div class="products-grid" id="products-grid"></div>
   </section>
-
-  <!-- COMING SOON / VOTE -->
   <section id="coming-soon">
     <div class="section-head">
-      <div class="section-title">Coming Soon — Vote for next</div>
-      <div class="section-sub">Most upvoted gets built first</div>
+      <div class="section-title">Coming Soon</div>
+      <div class="section-sub"><a href="#" onclick="showPage('ideas');return false;" style="color:var(--accent);">Vote &amp; suggest →</a></div>
     </div>
-    <div class="ideas-grid" id="ideas-grid">
-      <!-- rendered by JS -->
-    </div>
+    <div class="ideas-grid" id="ideas-grid"></div>
   </section>
-
   <footer>
-    <p>© 2025 AppVault. All rights reserved. &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy</a></p>
+    <button class="egg-btn" id="egg-btn" onclick="easterEggTap()">🔮</button>
+    <div class="egg-hint" id="egg-hint"></div>
+    <p style="margin-top:10px;">© 2025 AppVault · <a href="#">Terms</a> · <a href="#">Privacy</a></p>
   </footer>
 </div>
 
-<!-- ══════════════════════════════════════════ EARN PAGE ══════════════════════════════════════════ -->
-<div id="page-earn" class="earn-page">
+<!-- ══ IDEAS PAGE ══ -->
+<div id="page-ideas" style="display:none;">
+  <!-- sticky topbar -->
+  <div class="ideas-topbar">
+    <button class="filter-toggle-btn" onclick="openDrawer()">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      Filter
+    </button>
+    <div class="topbar-info">
+      <div class="topbar-title" id="topbar-title">All Ideas</div>
+      <div class="topbar-count" id="topbar-count"></div>
+    </div>
+    <div class="active-filter-pill" id="active-pill">
+      <span id="active-pill-label"></span>
+      <button onclick="filterIdeas('all',null)">✕</button>
+    </div>
+  </div>
+
+  <!-- ideas list -->
+  <div class="ideas-content">
+    <div class="ideas-full-list" id="ideas-full-list"></div>
+  </div>
+
+  <!-- submit form at bottom -->
+  <div class="ideas-submit-section">
+    <div class="submit-section-label">Got an idea?</div>
+    <div class="submit-card">
+      <h3>Suggest what we build next</h3>
+      <p>Describe the problem. If enough people vote for it, we build it.</p>
+      <div class="submit-row">
+        <div class="field-group">
+          <label class="field-label">App Name *</label>
+          <input class="form-input" id="idea-input-name" placeholder="e.g. Invoice Generator" maxlength="60" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Category</label>
+          <select class="form-input" id="idea-input-category">
+            <option value="Productivity">Productivity</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Design">Design</option>
+            <option value="Analytics">Analytics</option>
+            <option value="E-commerce">E-commerce</option>
+            <option value="Education">Education</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">What problem does it solve? *</label>
+        <textarea class="form-input" id="idea-input-desc" placeholder="Describe the problem and how this app would help..." maxlength="280" rows="3" oninput="updateCharCount(this,'idea-desc-count',280)"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:2px;"><span class="char-count" id="idea-desc-count">280 left</span></div>
+      </div>
+      <div class="submit-row">
+        <div class="field-group">
+          <label class="field-label">Your Name (optional)</label>
+          <input class="form-input" id="idea-input-submitter" placeholder="@yourname" maxlength="40" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Emoji</label>
+          <input class="form-input" id="idea-input-emoji" placeholder="💡" maxlength="4" value="💡" />
+        </div>
+      </div>
+      <div class="submit-actions">
+        <button class="btn-save" onclick="submitIdea()" id="submit-idea-btn">Submit →</button>
+        <span class="submit-note" id="submit-idea-note"></span>
+      </div>
+    </div>
+  </div>
+  <footer style="padding-bottom:calc(var(--bnh) + 0.5rem);">
+    <p>© 2025 AppVault · <a href="#" onclick="showPage('store');return false;">← Back to Store</a></p>
+  </footer>
+</div>
+
+<!-- ══ EARN PAGE ══ -->
+<div id="page-earn" class="earn-page" style="display:none;">
   <div class="earn-hero">
     <div class="hero-badge" style="margin-bottom:1rem;">💸 Referral Program</div>
-    <h1>Earn <em>30%</em> on every sale</h1>
-    <p>Share your unique referral link. Every time someone buys through your link, you keep 30% of the sale — automatically tracked, no cap.</p>
+    <h1>Earn <em>20%</em> on every sale</h1>
+    <p>Share your unique link. Every time someone buys through it, 20% goes to you — no cap.</p>
   </div>
-
   <div class="earn-steps">
-    <div class="earn-step">
-      <div class="earn-step-num">1</div>
-      <h3>Get your link</h3>
-      <p>Copy your unique referral code below. It's permanently tied to you.</p>
-    </div>
-    <div class="earn-step">
-      <div class="earn-step-num">2</div>
-      <h3>Share it</h3>
-      <p>Post it on Instagram, WhatsApp, YouTube — anywhere your audience is.</p>
-    </div>
-    <div class="earn-step">
-      <div class="earn-step-num">3</div>
-      <h3>Earn passively</h3>
-      <p>When someone buys using your code, 30% of the sale goes to you. No limits.</p>
-    </div>
-    <div class="earn-step">
-      <div class="earn-step-num">4</div>
-      <h3>Get paid</h3>
-      <p>Earnings are tracked in real time. Payout via UPI / bank transfer on request.</p>
-    </div>
+    <div class="earn-step"><div class="earn-step-num">1</div><h3>Get your link</h3><p>Copy your unique referral code below.</p></div>
+    <div class="earn-step"><div class="earn-step-num">2</div><h3>Share it</h3><p>Post on Instagram, WhatsApp, YouTube — anywhere.</p></div>
+    <div class="earn-step"><div class="earn-step-num">3</div><h3>Earn passively</h3><p>20% of every sale made with your code.</p></div>
+    <div class="earn-step"><div class="earn-step-num">4</div><h3>Get paid</h3><p>Payout via UPI / bank transfer on request.</p></div>
   </div>
-
   <div class="earn-ref-box">
     <div class="earn-ref-card">
       <h3>Your Referral Code</h3>
-      <p>Share this code with buyers. They enter it at checkout and you get 30% automatically.</p>
+      <p>Share this code. Buyers enter it at checkout.</p>
       <div class="ref-display">
         <span id="earn-ref-code">EARN-XXXXX</span>
         <button class="btn-copy" onclick="copyRef()">Copy</button>
       </div>
       <div class="earn-rate">
-        <div class="rate-num">30%</div>
-        <div class="rate-label">Commission per sale<br><span style="color:var(--text3);font-size:12px;">No cap. No expiry. Just earnings.</span></div>
+        <div class="rate-num">20%</div>
+        <div class="rate-label">Commission per sale<br><span style="color:var(--text3);font-size:11px;">No cap. No expiry.</span></div>
       </div>
-      <div style="margin-top:14px;">
-        <p style="font-size:12px;color:var(--text3);">Don't have a code yet? Enter your name to generate one:</p>
-        <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="margin-top:13px;">
+        <p style="font-size:12px;color:var(--text3);">No code yet? Enter your name:</p>
+        <div style="display:flex;gap:8px;margin-top:7px;">
           <input class="form-input" id="ref-name-input" placeholder="Your name or handle" style="flex:1;" />
           <button class="btn-save" onclick="generateRef()">Generate</button>
         </div>
       </div>
     </div>
   </div>
-
-  <footer style="max-width:100%;">
-    <p>Questions? DM us on Instagram. &nbsp;·&nbsp; <a href="#" onclick="showPage('store')">← Back to Store</a></p>
+  <footer>
+    <p>Questions? DM us on Instagram. · <a href="#" onclick="showPage('store');return false;">← Back to Store</a></p>
   </footer>
 </div>
 
-<!-- ══════════════════════════════════════════ ADMIN PAGE ══════════════════════════════════════════ -->
-<div id="page-admin" class="admin-page">
+<!-- ══ ADMIN PAGE ══ -->
+<div id="page-admin" class="admin-page" style="display:none;">
   <div class="admin-nav">
-    <div class="admin-nav-title">⚙ Admin Panel</div>
-    <button class="tab-btn active" onclick="adminTab('products')">Apps</button>
-    <button class="tab-btn" onclick="adminTab('ideas')">Coming Soon</button>
-    <button class="tab-btn" onclick="adminTab('settings')">Store Settings</button>
+    <div class="admin-nav-title">⚙ Admin</div>
+    <button class="tab-btn active" onclick="adminTab('products',this)">Apps</button>
+    <button class="tab-btn" onclick="adminTab('ideas',this)">Coming Soon</button>
+    <button class="tab-btn" onclick="adminTab('submitted-ideas',this)">Submitted Ideas</button>
+    <button class="tab-btn" onclick="adminTab('settings',this)">Settings</button>
     <div style="flex:1;"></div>
-    <button class="btn-admin" onclick="showPage('store')">← Back to Store</button>
+    <button class="btn-save" style="padding:5px 13px;font-size:12px;" onclick="showPage('store')">← Exit</button>
   </div>
-
   <div class="admin-content">
-
-    <!-- APPS TAB -->
     <div class="admin-section show" id="admin-products">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-        <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;">Manage Apps</h2>
-        <button class="btn-add" onclick="addNewApp()">+ Add New App</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h2 style="font-family:var(--font-head);font-size:16px;font-weight:700;">Manage Apps</h2>
+        <button class="btn-add" onclick="addNewApp()">+ Add App</button>
       </div>
       <div id="admin-apps-list"></div>
     </div>
-
-    <!-- IDEAS TAB -->
     <div class="admin-section" id="admin-ideas">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-        <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;">Coming Soon Ideas</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h2 style="font-family:var(--font-head);font-size:16px;font-weight:700;">Coming Soon Ideas</h2>
         <button class="btn-add" onclick="addNewIdea()">+ Add Idea</button>
       </div>
       <div id="admin-ideas-list"></div>
     </div>
-
-    <!-- SETTINGS TAB -->
+    <div class="admin-section" id="admin-submitted-ideas">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h2 style="font-family:var(--font-head);font-size:16px;font-weight:700;">Community Submitted Ideas</h2>
+        <span style="font-size:12px;color:var(--text3);">From Ideas page</span>
+      </div>
+      <div id="admin-submitted-ideas-list"></div>
+    </div>
     <div class="admin-section" id="admin-settings">
-      <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:18px;">Store Settings</h2>
+      <h2 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Store Settings</h2>
       <div class="admin-card">
         <div class="admin-card-body">
           <div class="admin-grid">
-            <div class="field-group">
-              <label class="field-label">Store Name</label>
-              <input class="field-input" id="s-name" value="AppVault" />
-            </div>
-            <div class="field-group">
-              <label class="field-label">Instagram Handle</label>
-              <input class="field-input" id="s-ig" placeholder="@yourhandle" />
-            </div>
-            <div class="field-group">
-              <label class="field-label">Currency Symbol</label>
-              <input class="field-input" id="s-currency" value="₹" />
-            </div>
-            <div class="field-group">
-              <label class="field-label">Customers Count (display)</label>
-              <input class="field-input" id="s-customers" value="1,200+" />
-            </div>
+            <div class="field-group"><label class="field-label">Store Name</label><input class="field-input" id="s-name" value="AppVault" /></div>
+            <div class="field-group"><label class="field-label">Instagram</label><input class="field-input" id="s-ig" placeholder="@yourhandle" /></div>
+            <div class="field-group"><label class="field-label">Currency</label><input class="field-input" id="s-currency" value="₹" /></div>
+            <div class="field-group"><label class="field-label">Customers Count</label><input class="field-input" id="s-customers" value="1,200+" /></div>
           </div>
-          <div class="field-group" style="margin-top:14px;">
-            <label class="field-label">Hero Tagline</label>
-            <input class="field-input" id="s-tagline" value="Apps that actually get things done" />
-          </div>
-          <div class="admin-actions">
-            <button class="btn-save" onclick="saveSettings()">Save Settings</button>
-          </div>
+          <div class="field-group" style="margin-top:10px;"><label class="field-label">Hero Tagline</label><input class="field-input" id="s-tagline" value="Apps that actually get things done" /></div>
+          <div class="admin-actions"><button class="btn-save" onclick="saveSettings()">Save Settings</button></div>
         </div>
       </div>
-
-      <div style="margin-top:24px;">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Admin Password</h3>
+      <div style="margin-top:18px;">
+        <h3 style="font-size:13px;font-weight:600;margin-bottom:9px;">Change Password</h3>
         <div class="admin-card">
           <div class="admin-card-body">
             <div class="admin-grid">
-              <div class="field-group">
-                <label class="field-label">New Password</label>
-                <input class="field-input" id="new-pw" type="password" placeholder="Enter new password" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Confirm Password</label>
-                <input class="field-input" id="confirm-pw" type="password" placeholder="Confirm password" />
-              </div>
+              <div class="field-group"><label class="field-label">New Password</label><input class="field-input" id="new-pw" type="password" placeholder="New password" /></div>
+              <div class="field-group"><label class="field-label">Confirm</label><input class="field-input" id="confirm-pw" type="password" placeholder="Confirm" /></div>
             </div>
-            <div class="admin-actions">
-              <button class="btn-save" onclick="changePassword()">Update Password</button>
-            </div>
+            <div class="admin-actions"><button class="btn-save" onclick="changePassword()">Update</button></div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════ MODALS ══════════════════════════════════════════ -->
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-item hidden" id="bnav-store" onclick="showPage('store')">
+    <div class="bnav-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    Store
+  </button>
+  <button class="bnav-item hidden" id="bnav-ideas" onclick="showPage('ideas')">
+    <div class="bnav-icon-wrap">
+      <!-- thinking icon -->
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="18" r="1"/><path d="M18 15a3 3 0 0 0-3-3h-1V7a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v6a6 6 0 0 0 6 6h3a3 3 0 0 0 3-3v-1"/><path d="M6 12a3 3 0 0 0-3-3"/></svg>
+    </div>
+    Community
+    <span class="bnav-badge" id="bnav-badge">0</span>
+  </button>
+  <button class="bnav-item active" id="bnav-earn" onclick="showPage('earn')">
+    <div class="bnav-icon-wrap">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    Earn 20%
+  </button>
+</nav>
 
-<!-- Product Detail Modal -->
-<div class="overlay" id="product-overlay" onclick="closeProductModal(event)">
-  <div class="modal" id="product-modal">
+<!-- FILTER DRAWER -->
+<div class="filter-overlay" id="filter-overlay" onclick="closeDrawer()"></div>
+<div class="filter-drawer" id="filter-drawer">
+  <div class="drawer-head">
+    <div class="drawer-title">Filter &amp; Sort</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-label">Category</div>
+    <button class="filter-btn active" onclick="filterIdeas('all',this)">All <span class="filter-count" id="fc-all">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Productivity',this)">Productivity <span class="filter-count" id="fc-Productivity">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Finance',this)">Finance <span class="filter-count" id="fc-Finance">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Marketing',this)">Marketing <span class="filter-count" id="fc-Marketing">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Design',this)">Design <span class="filter-count" id="fc-Design">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Analytics',this)">Analytics <span class="filter-count" id="fc-Analytics">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('E-commerce',this)">E-commerce <span class="filter-count" id="fc-E-commerce">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Education',this)">Education <span class="filter-count" id="fc-Education">0</span></button>
+    <button class="filter-btn" onclick="filterIdeas('Other',this)">Other <span class="filter-count" id="fc-Other">0</span></button>
+    <div class="drawer-div"></div>
+    <div class="drawer-label">Sort by</div>
+    <div class="sort-btns-v">
+      <button class="sort-btn active" onclick="sortIdeas('votes',this)">🔥 Most Votes</button>
+      <button class="sort-btn" onclick="sortIdeas('newest',this)">✨ Newest</button>
+      <button class="sort-btn" onclick="sortIdeas('trending',this)">📈 Trending</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="product-overlay" onclick="closePM(event)">
+  <div class="modal">
     <div class="modal-header">
-      <div>
-        <div class="modal-tag" id="m-tag"></div>
-        <div class="modal-title" id="m-title"></div>
-      </div>
-      <button class="modal-close" onclick="closeProductModalDirect()">✕</button>
+      <div><div class="modal-tag" id="m-tag"></div><div class="modal-title" id="m-title"></div></div>
+      <button class="modal-close" onclick="closePMD()">✕</button>
     </div>
     <div id="m-video-section"></div>
     <div class="modal-screenshots" id="m-screenshots"></div>
@@ -844,13 +668,12 @@
       <ul class="features-list" id="m-features"></ul>
       <div class="modal-buy-row">
         <div class="modal-price" id="m-price"></div>
-        <button class="btn-buy" id="m-buy-btn" onclick="openCheckout()">Buy Now →</button>
+        <button class="btn-buy" onclick="openCheckout()">Buy Now →</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Checkout Modal -->
 <div class="overlay" id="checkout-overlay" onclick="closeCheckout(event)">
   <div class="checkout-modal">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
@@ -858,927 +681,491 @@
       <button class="modal-close" onclick="document.getElementById('checkout-overlay').classList.remove('open')">✕</button>
     </div>
     <div class="checkout-sub" id="checkout-product-name"></div>
-    <div class="form-group">
-      <label class="form-label">Email Address</label>
-      <input class="form-input" id="checkout-email" type="email" placeholder="you@example.com" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Referral Code (optional)</label>
-      <input class="form-input" id="checkout-ref" placeholder="e.g. EARN-XXXXX" />
-    </div>
-    <div class="checkout-total">
-      <div class="label">Total</div>
-      <div class="amount" id="checkout-amount"></div>
-    </div>
+    <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="checkout-email" type="email" placeholder="you@example.com" /></div>
+    <div class="form-group"><label class="form-label">Referral Code (optional)</label><input class="form-input" id="checkout-ref" placeholder="e.g. EARN-XXXXX" /></div>
+    <div class="checkout-total"><div class="label">Total</div><div class="amount" id="checkout-amount"></div></div>
     <button class="btn-pay" id="pay-btn" onclick="processPayment()">Pay with Razorpay →</button>
-    <div class="checkout-note" id="checkout-note">Secure payment. License key delivered instantly after verification.</div>
+    <div class="checkout-note" id="checkout-note">Secure payment. License key delivered instantly.</div>
   </div>
 </div>
 
-<!-- Success Modal -->
 <div class="overlay" id="success-overlay">
   <div class="success-modal">
+    <button class="success-close" onclick="document.getElementById('success-overlay').classList.remove('open')">✕</button>
     <div class="success-icon">✓</div>
     <div class="success-title">Payment Successful!</div>
-    <div class="success-sub">Your license key is ready. Keep it safe — you'll need it to activate the app.</div>
+    <div class="success-sub">Your license key is ready. Keep it safe.</div>
     <div class="success-meta" id="success-meta"></div>
-    <div class="license-box">
-      <span id="success-license">VAULT-XXXX-XXXX-XXXX</span>
-      <button class="btn-copy" onclick="copyLicense()">Copy</button>
-    </div>
+    <div class="license-box"><span id="success-license">VAULT-XXXX-XXXX-XXXX</span><button class="btn-copy" onclick="copyLicense()">Copy</button></div>
     <div class="success-actions">
-      <button class="btn-download" onclick="openDeliveredDownload()">⬇ Download App</button>
-      <button class="btn-tutorial" onclick="openDeliveredTutorial()">View Tutorial</button>
+      <button class="btn-download" onclick="openDeliveredDownload()">⬇ Download</button>
+      <button class="btn-tutorial" onclick="openDeliveredTutorial()">Tutorial</button>
     </div>
-    <div style="margin-top:14px;font-size:12px;color:var(--text3);" id="success-footer">Your order has also been recorded in Supabase.</div>
+    <div style="margin-top:11px;font-size:11px;color:var(--text3);" id="success-footer">Order recorded.</div>
   </div>
 </div>
 
-<!-- Admin Login Modal -->
 <div class="overlay" id="admin-login-overlay" onclick="closeAdminLogin(event)">
-  <div class="checkout-modal" style="max-width:340px;">
-    <div style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:4px;">Admin Access</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Enter your password to access the admin panel.</div>
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <input class="form-input" id="admin-pw-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPw()" />
-    </div>
+  <div class="checkout-modal" style="max-width:310px;">
+    <div style="font-family:var(--font-head);font-size:17px;font-weight:700;margin-bottom:3px;">Admin Access</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Enter your password.</div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="admin-pw-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPw()" /></div>
     <button class="btn-pay" onclick="checkAdminPw()">Enter Admin Panel</button>
-    <div id="admin-pw-error" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none;">Incorrect password</div>
+    <div id="admin-pw-error" style="color:var(--red);font-size:12px;text-align:center;margin-top:7px;display:none;">Incorrect password</div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- ══════════════════════════════════════════ SCRIPT ══════════════════════════════════════════ -->
 <script>
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-// Initialize Supabase
-const supabaseUrl = 'https://qgfrfionwcdziuixmezj.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZnJmaW9ud2Nkeml1aXhtZXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODU0MjQsImV4cCI6MjA5MTE2MTQyNH0.XA2jQUq1gNFQhNs5UJ-bco6sZ7DWqvmdvrgb6r-7QWU';
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-const API_BASE_URL = window.location.origin;
+const SB=window.supabase.createClient('https://qgfrfionwcdziuixmezj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZnJmaW9ud2Nkeml1aXhtZXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODU0MjQsImV4cCI6MjA5MTE2MTQyNH0.XA2jQUq1gNFQhNs5UJ-bco6sZ7DWqvmdvrgb6r-7QWU');
+const API=window.location.origin;
 
-// We will store the fetched data here instead of localStorage
-let store = {
-  settings: {
-    name: 'AppVault',
-    tagline: 'Apps that actually get things done',
-    currency: '₹',
-    customers: '1,200+',
-    instagram: ''
-  },
-  adminPassword: 'admin123',
-  apps: [],
-  ideas: []
-};
+let store={settings:{name:'AppVault',tagline:'Apps that actually get things done',currency:'₹',customers:'1,200+',instagram:''},adminPassword:'admin123',apps:[],ideas:[],submittedIdeas:[]};
+const _ls=JSON.parse(localStorage.getItem('appvault_store_admin')||'{}');
+if(_ls.settings) store.settings={...store.settings,..._ls.settings};
+if(_ls.adminPassword) store.adminPassword=_ls.adminPassword;
 
-const localAdminState = JSON.parse(localStorage.getItem('appvault_store_admin') || '{}');
-if (localAdminState.settings) {
-  store.settings = { ...store.settings, ...localAdminState.settings };
-}
-if (localAdminState.adminPassword) {
-  store.adminPassword = localAdminState.adminPassword;
-}
+const nA=a=>({id:a?.id,name:a?.name||'',featured:Boolean(a?.featured),category:a?.category||'App',emoji:a?.emoji||'📦',shortDesc:a?.shortDesc??a?.short_desc??'',fullDesc:a?.fullDesc??a?.full_desc??'',price:Number(a?.price)||0,features:Array.isArray(a?.features)?a.features:[],screenshots:Array.isArray(a?.screenshots)?a.screenshots:Array.isArray(a?.screenshot_urls)?a.screenshot_urls:[],videoUrl:a?.videoUrl??a?.video_url??'',downloadUrl:a?.downloadUrl??a?.download_url??'#',tutorialUrl:a?.tutorialUrl??a?.tutorial_url??'#',votes:{up:Number(a?.upvotes??a?.votes?.up)||0,down:Number(a?.downvotes??a?.votes?.down)||0}});
+const nI=i=>({id:i?.id,name:i?.name||'',emoji:i?.emoji||'💡',desc:i?.desc??i?.description??'',votes:{up:Number(i?.upvotes??i?.votes?.up)||0,down:Number(i?.downvotes??i?.votes?.down)||0}});
+const nSI=i=>({id:i?.id,name:i?.name||'',emoji:i?.emoji||'💡',category:i?.category||'Other',desc:i?.desc??i?.description??'',submitter:i?.submitter||'',votes:{up:Number(i?.upvotes??i?.votes?.up)||0,down:Number(i?.downvotes??i?.votes?.down)||0},created_at:i?.created_at||null});
+const aToDb=a=>({id:a.id,name:a.name,featured:Boolean(a.featured),category:a.category||'App',emoji:a.emoji||'📦',short_desc:a.shortDesc||'',full_desc:a.fullDesc||'',price:Number(a.price)||0,features:Array.isArray(a.features)?a.features:[],screenshots:Array.isArray(a.screenshots)?a.screenshots:[],video_url:a.videoUrl||'',download_url:a.downloadUrl||'#',tutorial_url:a.tutorialUrl||'#',upvotes:Number(a?.votes?.up)||0,downvotes:Number(a?.votes?.down)||0});
+const iToDb=i=>({id:i.id,name:i.name,emoji:i.emoji||'💡',description:i.desc||'',upvotes:Number(i?.votes?.up)||0,downvotes:Number(i?.votes?.down)||0});
+const siToDb=i=>({name:i.name,emoji:i.emoji||'💡',category:i.category||'Other',description:i.desc||'',submitter:i.submitter||'',upvotes:0,downvotes:0});
+function saveLocal(){localStorage.setItem('appvault_store_admin',JSON.stringify({settings:store.settings,adminPassword:store.adminPassword}));}
 
-function normalizeApp(app) {
-  return {
-    id: app?.id,
-    name: app?.name || '',
-    featured: Boolean(app?.featured),
-    category: app?.category || 'App',
-    emoji: app?.emoji || '📦',
-    shortDesc: app?.shortDesc ?? app?.short_desc ?? '',
-    fullDesc: app?.fullDesc ?? app?.full_desc ?? '',
-    price: Number(app?.price) || 0,
-    features: Array.isArray(app?.features) ? app.features : [],
-    screenshots: Array.isArray(app?.screenshots) ? app.screenshots : Array.isArray(app?.screenshot_urls) ? app.screenshot_urls : [],
-    videoUrl: app?.videoUrl ?? app?.video_url ?? '',
-    downloadUrl: app?.downloadUrl ?? app?.download_url ?? '#',
-    tutorialUrl: app?.tutorialUrl ?? app?.tutorial_url ?? '#',
-    votes: {
-      up: Number(app?.upvotes ?? app?.votes?.up) || 0,
-      down: Number(app?.downvotes ?? app?.votes?.down) || 0
-    }
-  };
-}
-
-function normalizeIdea(idea) {
-  return {
-    id: idea?.id,
-    name: idea?.name || '',
-    emoji: '💡',
-    desc: idea?.desc ?? idea?.description ?? '',
-    votes: {
-      up: Number(idea?.upvotes ?? idea?.votes?.up) || 0,
-      down: Number(idea?.downvotes ?? idea?.votes?.down) || 0
-    }
-  };
-}
-
-function appToDb(app) {
-  return {
-    id: app.id,
-    name: app.name,
-    featured: Boolean(app.featured),
-    category: app.category || 'App',
-    emoji: app.emoji || '📦',
-    short_desc: app.shortDesc || '',
-    full_desc: app.fullDesc || '',
-    price: Number(app.price) || 0,
-    features: Array.isArray(app.features) ? app.features : [],
-    screenshots: Array.isArray(app.screenshots) ? app.screenshots : [],
-    video_url: app.videoUrl || '',
-    download_url: app.downloadUrl || '#',
-    tutorial_url: app.tutorialUrl || '#',
-    upvotes: Number(app?.votes?.up) || 0,
-    downvotes: Number(app?.votes?.down) || 0
-  };
-}
-
-function ideaToDb(idea) {
-  return {
-    id: idea.id,
-    name: idea.name,
-    emoji: idea.emoji || '💡',
-    description: idea.desc || '',
-    upvotes: Number(idea?.votes?.up) || 0,
-    downvotes: Number(idea?.votes?.down) || 0
-  };
-}
-
-function save() {
-  localStorage.setItem('appvault_store_admin', JSON.stringify({
-    settings: store.settings,
-    adminPassword: store.adminPassword
-  }));
-}
-
-function syncViews() {
-  renderStore();
-  if (document.getElementById('page-admin').style.display === 'block') {
-    renderAdmin();
-  }
-}
-
-// Fetch data from Supabase
-async function initStore() {
-  const [{ data: appsData, error: appsError }, { data: ideasData, error: ideasError }] = await Promise.all([
-    supabaseClient.from('apps').select('*').order('featured', { ascending: false }).order('id', { ascending: true }),
-    supabaseClient.from('ideas').select('*').order('id', { ascending: true })
+async function initStore(){
+  const[ar,ir,sr]=await Promise.all([
+    SB.from('apps').select('*').order('featured',{ascending:false}).order('id',{ascending:true}),
+    SB.from('ideas').select('*').order('id',{ascending:true}),
+    SB.from('submitted_ideas').select('*').order('upvotes',{ascending:false})
   ]);
-
-  if (appsError) {
-    console.error('Error loading apps:', appsError);
-    showToast('Could not load apps from Supabase', false);
-  } else {
-    store.apps = (appsData || []).map(normalizeApp);
-  }
-
-  if (ideasError) {
-    console.error('Error loading ideas:', ideasError);
-    showToast('Could not load ideas from Supabase', false);
-  } else {
-    store.ideas = (ideasData || []).map(normalizeIdea);
-  }
-
-  syncViews();
+  if(!ar.error) store.apps=(ar.data||[]).map(nA);
+  if(!ir.error) store.ideas=(ir.data||[]).map(nI);
+  if(!sr.error) store.submittedIdeas=(sr.data||[]).map(nSI);
+  else{console.warn('submitted_ideas table missing');store.submittedIdeas=[];}
+  updateBadge();syncViews();
 }
+function updateBadge(){const b=document.getElementById('bnav-badge');if(!b)return;const c=store.submittedIdeas.length;if(c>0){b.textContent=c>99?'99+':c;b.classList.add('show');}else b.classList.remove('show');}
+function syncViews(){renderStore();if(currentPage==='ideas')renderIdeasPage();if(currentPage==='admin')renderAdmin();}
 
-async function migrateLocalStoreToSupabase() {
-  const legacyStore = JSON.parse(localStorage.getItem('appvault_store') || 'null');
-  if (!legacyStore) {
-    console.log('No legacy localStorage data found.');
-    return;
-  }
-
-  const legacyApps = Array.isArray(legacyStore.apps) ? legacyStore.apps.map(normalizeApp).map(appToDb) : [];
-  const legacyIdeas = Array.isArray(legacyStore.ideas) ? legacyStore.ideas.map(normalizeIdea).map(ideaToDb) : [];
-
-  if (legacyApps.length) {
-    const { error } = await supabaseClient.from('apps').upsert(legacyApps);
-    if (error) throw error;
-  }
-
-  if (legacyIdeas.length) {
-    const { error } = await supabaseClient.from('ideas').upsert(legacyIdeas);
-    if (error) throw error;
-  }
-
-  console.log('Legacy localStorage data migrated to Supabase.');
-  await initStore();
-}
-
-window.migrateLocalStoreToSupabase = migrateLocalStoreToSupabase;
-
-let currentApp = null;
-let deliveredOrder = null;
-let isProcessingPayment = false;
-let userVotes = JSON.parse(localStorage.getItem('appvault_votes') || '{}');
-let ideavotes = JSON.parse(localStorage.getItem('appvault_ideavotes') || '{}');
-
-// ── PAGE ROUTING ──
-function showPage(page) {
-  document.getElementById('page-store').style.display = 'none';
-  document.getElementById('page-earn').style.display = 'none';
-  document.getElementById('page-admin').style.display = 'none';
-  if (page === 'store') { document.getElementById('page-store').style.display = 'block'; renderStore(); }
-  if (page === 'earn') { document.getElementById('page-earn').style.display = 'block'; renderEarnPage(); }
-  if (page === 'admin') { document.getElementById('page-admin').style.display = 'block'; renderAdmin(); }
+let currentPage='store';
+function showPage(page){
+  currentPage=page;
+  ['store','ideas','earn','admin'].forEach(p=>{const el=document.getElementById('page-'+p);if(el)el.style.display='none';});
+  const t=document.getElementById('page-'+page);if(t)t.style.display='block';
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  const bn=document.getElementById('bnav-'+page);if(bn)bn.classList.add('active');
+  document.querySelectorAll('.lnav-item').forEach(b=>b.classList.remove('active'));
+  const ln=document.getElementById('lnav-'+page);if(ln)ln.classList.add('active');
+  if(page==='store')renderStore();
+  if(page==='ideas')renderIdeasPage();
+  if(page==='earn')renderEarnPage();
+  if(page==='admin')renderAdmin();
   window.scrollTo(0,0);
 }
 
-function scrollToSection(id) {
-  setTimeout(() => {
-    const el = document.querySelector(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  }, 100);
-}
+// filter drawer
+function openDrawer(){document.getElementById('filter-drawer').classList.add('open');document.getElementById('filter-overlay').classList.add('open');}
+function closeDrawer(){document.getElementById('filter-drawer').classList.remove('open');document.getElementById('filter-overlay').classList.remove('open');}
 
-// ── RENDER STORE ──
-function renderStore() {
-  const s = store.settings;
-  document.title = s.name + ' — Digital Tools Store';
-  document.getElementById('stat-apps').textContent = store.apps.length;
-  document.getElementById('stat-customers').textContent = s.customers;
-  document.getElementById('product-count').textContent = store.apps.length + ' app' + (store.apps.length !== 1 ? 's' : '');
-
-  // Products
-  const grid = document.getElementById('products-grid');
-  grid.innerHTML = store.apps.map(app => `
-    <div class="product-card ${app.featured ? 'featured' : ''}" onclick='openProduct(${JSON.stringify(app.id)})'>
-      <div class="card-thumb">
-        ${app.screenshots && app.screenshots.length > 0
-          ? `<img src="${app.screenshots[0]}" alt="${app.name}" />`
-          : `<div class="card-thumb-placeholder">${app.emoji || '📦'}</div>`}
-      </div>
+// render store
+function renderStore(){
+  const s=store.settings;
+  document.title=esc(s.name)+' — Digital Tools Store';
+  const sa=document.getElementById('stat-apps');if(sa)sa.textContent=store.apps.length;
+  const sc=document.getElementById('stat-customers');if(sc)sc.textContent=s.customers;
+  const pc=document.getElementById('product-count');if(pc)pc.textContent=store.apps.length+' app'+(store.apps.length!==1?'s':'');
+  const g=document.getElementById('products-grid');
+  if(g)g.innerHTML=store.apps.map(app=>`
+    <div class="product-card ${app.featured?'featured':''}" onclick='openProduct(${JSON.stringify(app.id)})'>
+      <div class="card-thumb">${app.screenshots&&app.screenshots.length>0?`<img src="${esc(app.screenshots[0])}" alt="${esc(app.name)}" onerror="this.parentElement.innerHTML='<div class=\\'card-thumb-placeholder\\'>${esc(app.emoji)}</div>'" />`:`<div class="card-thumb-placeholder">${esc(app.emoji)}</div>`}</div>
       <div class="card-body">
-        <div class="card-tag">${app.category || 'App'}</div>
-        <div class="card-title">${app.name}</div>
-        <div class="card-desc">${app.shortDesc}</div>
+        <div class="card-tag">${esc(app.category)}</div>
+        <div class="card-title">${esc(app.name)}</div>
+        <div class="card-desc">${esc(app.shortDesc)}</div>
         <div class="card-footer">
-          <div class="card-price"><span class="currency">${s.currency}</span>${app.price.toLocaleString()}</div>
+          <div class="card-price"><span class="currency">${esc(s.currency)}</span>${Number(app.price).toLocaleString()}</div>
           <div class="card-votes">
-            <button class="vote-btn up ${userVotes[app.id] === 'up' ? 'active' : ''}" onclick='vote(event, ${JSON.stringify(app.id)}, "up")'>▲ ${app.votes.up}</button>
-            <button class="vote-btn down ${userVotes[app.id] === 'down' ? 'active' : ''}" onclick='vote(event, ${JSON.stringify(app.id)}, "down")'>▼ ${app.votes.down}</button>
+            <button class="vote-btn up ${uV[app.id]==='up'?'active':''}" onclick='vote(event,${JSON.stringify(app.id)},"up")'>▲ ${app.votes.up}</button>
+            <button class="vote-btn down ${uV[app.id]==='down'?'active':''}" onclick='vote(event,${JSON.stringify(app.id)},"down")'>▼ ${app.votes.down}</button>
           </div>
         </div>
       </div>
-    </div>
-  `).join('');
-
-  // Ideas
-  const igrid = document.getElementById('ideas-grid');
-  igrid.innerHTML = store.ideas.map(idea => `
+    </div>`).join('');
+  const ig=document.getElementById('ideas-grid');
+  if(ig)ig.innerHTML=store.ideas.map(idea=>`
     <div class="idea-card">
-      <div class="idea-icon">${idea.emoji || '💡'}</div>
+      <div class="idea-icon">${esc(idea.emoji)}</div>
       <div class="idea-info">
-        <div class="idea-name">${idea.name}</div>
-        <div class="idea-desc">${idea.desc}</div>
+        <div class="idea-name">${esc(idea.name)}</div>
+        <div class="idea-desc">${esc(idea.desc)}</div>
         <div class="idea-votes">
-          <button class="idea-vote ${ideavotes[idea.id] === 'up' ? 'voted' : ''}" onclick='voteIdea(${JSON.stringify(idea.id)}, "up")'>▲ ${idea.votes.up}</button>
-          <button class="idea-vote" onclick='voteIdea(${JSON.stringify(idea.id)}, "down")' style="${ideavotes[idea.id] === 'down' ? 'color:var(--red);border-color:var(--red);' : ''}">▼ ${idea.votes.down}</button>
+          <button class="idea-vote ${iV[idea.id]==='up'?'voted':''}" onclick='voteIdea(${JSON.stringify(idea.id)},"up")'>▲ ${idea.votes.up}</button>
+          <button class="idea-vote ${iV[idea.id]==='down'?'voted-down':''}" onclick='voteIdea(${JSON.stringify(idea.id)},"down")'>▼ ${idea.votes.down}</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-async function vote(e, id, dir) {
-  e.stopPropagation();
-  const app = store.apps.find(a => a.id === id);
-  if (!app) return;
-  const nextVotes = { ...app.votes };
-
-  if (userVotes[id] === dir) {
-    nextVotes[dir] = Math.max(0, nextVotes[dir] - 1);
-    delete userVotes[id];
-  } else {
-    if (userVotes[id]) nextVotes[userVotes[id]] = Math.max(0, nextVotes[userVotes[id]] - 1);
-    nextVotes[dir] += 1;
-    userVotes[id] = dir;
-  }
-
-  const { error } = await supabaseClient
-    .from('apps')
-    .update({ upvotes: nextVotes.up, downvotes: nextVotes.down })
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error updating app votes:', error);
-    showToast('Could not update vote', false);
-    await initStore();
-    return;
-  }
-
-  app.votes = nextVotes;
-  localStorage.setItem('appvault_votes', JSON.stringify(userVotes));
-  renderStore();
+// votes
+let vip={},uV=JSON.parse(localStorage.getItem('appvault_votes')||'{}'),iV=JSON.parse(localStorage.getItem('appvault_ideavotes')||'{}'),sV=JSON.parse(localStorage.getItem('appvault_submitted_votes')||'{}');
+async function vote(e,id,dir){
+  e.stopPropagation();if(vip['a'+id])return;vip['a'+id]=true;
+  const app=store.apps.find(a=>a.id===id);if(!app){vip['a'+id]=false;return;}
+  const v={...app.votes};
+  if(uV[id]===dir){v[dir]=Math.max(0,v[dir]-1);delete uV[id];}else{if(uV[id])v[uV[id]]=Math.max(0,v[uV[id]]-1);v[dir]+=1;uV[id]=dir;}
+  const{error}=await SB.from('apps').update({upvotes:v.up,downvotes:v.down}).eq('id',id);
+  if(error)showToast('Vote failed',false);else{app.votes=v;localStorage.setItem('appvault_votes',JSON.stringify(uV));renderStore();}
+  vip['a'+id]=false;
+}
+async function voteIdea(id,dir){
+  if(vip['i'+id])return;vip['i'+id]=true;
+  const idea=store.ideas.find(i=>i.id===id);if(!idea){vip['i'+id]=false;return;}
+  const v={...idea.votes};
+  if(iV[id]===dir){v[dir]=Math.max(0,v[dir]-1);delete iV[id];}else{if(iV[id])v[iV[id]]=Math.max(0,v[iV[id]]-1);v[dir]+=1;iV[id]=dir;}
+  const{error}=await SB.from('ideas').update({upvotes:v.up,downvotes:v.down}).eq('id',id);
+  if(error)showToast('Vote failed',false);else{idea.votes=v;localStorage.setItem('appvault_ideavotes',JSON.stringify(iV));renderStore();}
+  vip['i'+id]=false;
+}
+async function voteSI(id,dir){
+  if(vip['s'+id])return;vip['s'+id]=true;
+  const idea=store.submittedIdeas.find(i=>i.id===id);if(!idea){vip['s'+id]=false;return;}
+  const v={...idea.votes};
+  if(sV[id]===dir){v[dir]=Math.max(0,v[dir]-1);delete sV[id];}else{if(sV[id])v[sV[id]]=Math.max(0,v[sV[id]]-1);v[dir]+=1;sV[id]=dir;}
+  const{error}=await SB.from('submitted_ideas').update({upvotes:v.up,downvotes:v.down}).eq('id',id);
+  if(error)showToast('Vote failed',false);else{idea.votes=v;localStorage.setItem('appvault_submitted_votes',JSON.stringify(sV));renderIdeasPage();}
+  vip['s'+id]=false;
 }
 
-async function voteIdea(id, dir) {
-  const idea = store.ideas.find(i => i.id === id);
-  if (!idea) return;
-  const nextVotes = { ...idea.votes };
-
-  if (ideavotes[id] === dir) {
-    nextVotes[dir] = Math.max(0, nextVotes[dir] - 1);
-    delete ideavotes[id];
-  } else {
-    if (ideavotes[id]) nextVotes[ideavotes[id]] = Math.max(0, nextVotes[ideavotes[id]] - 1);
-    nextVotes[dir] += 1;
-    ideavotes[id] = dir;
-  }
-
-  const { error } = await supabaseClient
-    .from('ideas')
-    .update({ upvotes: nextVotes.up, downvotes: nextVotes.down })
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error updating idea votes:', error);
-    showToast('Could not update idea vote', false);
-    await initStore();
-    return;
-  }
-
-  idea.votes = nextVotes;
-  localStorage.setItem('appvault_ideavotes', JSON.stringify(ideavotes));
-  renderStore();
+// ideas page
+let ideasFilter='all',ideasSort='votes';
+function updateCharCount(el,cid,max){const e=document.getElementById(cid);if(e)e.textContent=(max-el.value.length)+' left';}
+async function submitIdea(){
+  const name=document.getElementById('idea-input-name')?.value.trim();
+  const desc=document.getElementById('idea-input-desc')?.value.trim();
+  const cat=document.getElementById('idea-input-category')?.value||'Other';
+  const sub=document.getElementById('idea-input-submitter')?.value.trim();
+  const emoji=document.getElementById('idea-input-emoji')?.value.trim()||'💡';
+  const noteEl=document.getElementById('submit-idea-note');
+  const btn=document.getElementById('submit-idea-btn');
+  if(!name){showToast('Please enter an app name',false);return;}
+  if(!desc){showToast('Describe the problem it solves',false);return;}
+  btn.disabled=true;btn.textContent='Submitting...';
+  const{data,error}=await SB.from('submitted_ideas').insert(siToDb({name,emoji,category:cat,desc,submitter:sub})).select().single();
+  if(error){console.error(error);btn.disabled=false;btn.textContent='Submit →';if(noteEl)noteEl.textContent='Failed. Check submitted_ideas table.';showToast('Submission failed',false);return;}
+  store.submittedIdeas.unshift(nSI(data));
+  document.getElementById('idea-input-name').value='';
+  document.getElementById('idea-input-desc').value='';
+  document.getElementById('idea-input-submitter').value='';
+  document.getElementById('idea-input-emoji').value='💡';
+  updateCharCount({value:''},'idea-desc-count',280);
+  btn.disabled=false;btn.textContent='Submit →';if(noteEl)noteEl.textContent='';
+  updateBadge();showToast('Idea submitted! Thanks 🎉',true);renderIdeasPage();
+}
+function filterIdeas(cat,btnEl){
+  ideasFilter=cat;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btnEl)btnEl.classList.add('active');
+  const pill=document.getElementById('active-pill'),label=document.getElementById('active-pill-label');
+  if(cat==='all'){if(pill)pill.classList.remove('show');}
+  else{if(pill)pill.classList.add('show');if(label)label.textContent=cat;}
+  closeDrawer();renderIdeasPage();
+}
+function sortIdeas(method,btnEl){
+  ideasSort=method;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  if(btnEl)btnEl.classList.add('active');
+  closeDrawer();renderIdeasPage();
+}
+function renderIdeasPage(){
+  let ideas=[...store.submittedIdeas];
+  const cats=['Productivity','Finance','Marketing','Design','Analytics','E-commerce','Education','Other'];
+  const fall=document.getElementById('fc-all');if(fall)fall.textContent=ideas.length;
+  cats.forEach(c=>{const el=document.getElementById('fc-'+c);if(el)el.textContent=ideas.filter(i=>i.category===c).length;});
+  if(ideasFilter!=='all')ideas=ideas.filter(i=>i.category===ideasFilter);
+  if(ideasSort==='votes')ideas.sort((a,b)=>(b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
+  else if(ideasSort==='newest')ideas.sort((a,b)=>(b.id||0)-(a.id||0));
+  else ideas.sort((a,b)=>b.votes.up-a.votes.up);
+  const tt=document.getElementById('topbar-title');if(tt)tt.textContent=ideasFilter==='all'?'All Ideas':ideasFilter;
+  const tc=document.getElementById('topbar-count');if(tc)tc.textContent=ideas.length+' idea'+(ideas.length!==1?'s':'');
+  const listEl=document.getElementById('ideas-full-list');if(!listEl)return;
+  if(!ideas.length){listEl.innerHTML=`<div class="ideas-empty"><div class="ei">💭</div><div>No ideas here yet.<br>Submit one below!</div></div>`;return;}
+  const top=Math.max(...ideas.map(i=>i.votes.up-i.votes.down));
+  listEl.innerHTML=ideas.map(idea=>{
+    const sc=idea.votes.up-idea.votes.down,isTop=sc===top&&sc>0;
+    const upA=sV[idea.id]==='up',downA=sV[idea.id]==='down';
+    const ds=idea.created_at?new Date(idea.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+    return`<div class="idea-full-card${isTop?' top-voted':''}">
+      <div>
+        <div class="idea-full-header">
+          <div class="idea-full-emoji">${esc(idea.emoji)}</div>
+          <div class="idea-full-name">${esc(idea.name)}</div>
+          <div class="idea-full-category">${esc(idea.category)}</div>
+          ${isTop?'<div class="top-voted-badge">🔥 Top</div>':''}
+        </div>
+        <div class="idea-full-desc">${esc(idea.desc)}</div>
+        <div class="idea-full-meta">
+          ${idea.submitter?`<span>by <strong style="color:var(--text2)">${esc(idea.submitter)}</strong></span>`:''}
+          ${ds?`<span>${ds}</span>`:''}
+        </div>
+      </div>
+      <div class="idea-vote-controls">
+        <button class="big-vote-btn up${upA?' active':''}" onclick='voteSI(${JSON.stringify(idea.id)},"up")'>▲</button>
+        <div class="vote-score${sc>0?' positive':sc<0?' negative':''}">${sc>0?'+':''}${sc}</div>
+        <button class="big-vote-btn down${downA?' active':''}" onclick='voteSI(${JSON.stringify(idea.id)},"down")'>▼</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// ── PRODUCT MODAL ──
-function openProduct(id) {
-  const app = store.apps.find(a => a.id === id);
-  if (!app) return;
-  currentApp = app;
-  const s = store.settings;
-  document.getElementById('m-tag').textContent = app.category || 'App';
-  document.getElementById('m-title').textContent = app.name;
-  document.getElementById('m-desc').textContent = app.fullDesc || app.shortDesc;
-  document.getElementById('m-price').innerHTML = `<span style="font-size:15px;color:var(--text3);font-weight:400;">${s.currency}</span>${app.price.toLocaleString()} <small>one-time</small>`;
-
-  // Video
-  const vSec = document.getElementById('m-video-section');
-  if (app.videoUrl) {
-    let embedUrl = app.videoUrl;
-    if (embedUrl.includes('youtube.com/watch')) embedUrl = embedUrl.replace('watch?v=', 'embed/');
-    if (embedUrl.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/' + embedUrl.split('youtu.be/')[1];
-    vSec.innerHTML = `<div style="padding:0 24px 0;"><div class="video-wrap"><iframe src="${embedUrl}" allowfullscreen></iframe></div></div>`;
-  } else {
-    vSec.innerHTML = `<div style="padding:0 24px 0;"><div class="video-wrap"><div class="video-placeholder"><div class="play-icon">▶</div><div>Demo video coming soon</div></div></div></div>`;
+// product modal
+let currentApp=null;
+function openProduct(id){
+  const app=store.apps.find(a=>a.id===id);if(!app)return;
+  currentApp=app;const s=store.settings;
+  document.getElementById('m-tag').textContent=app.category||'App';
+  document.getElementById('m-title').textContent=app.name;
+  document.getElementById('m-desc').textContent=app.fullDesc||app.shortDesc;
+  document.getElementById('m-price').innerHTML=`<span style="font-size:12px;color:var(--text3);font-weight:400;">${esc(s.currency)}</span>${Number(app.price).toLocaleString()} <small>one-time</small>`;
+  const vs=document.getElementById('m-video-section');
+  if(app.videoUrl){
+    let u=app.videoUrl;
+    if(u.includes('youtube.com/watch'))u=u.replace('watch?v=','embed/');
+    if(u.includes('youtu.be/'))u='https://www.youtube.com/embed/'+u.split('youtu.be/')[1];
+    vs.innerHTML=`<div style="padding:0 18px 0;"><div class="video-wrap"><iframe src="${esc(u)}" allowfullscreen></iframe></div></div>`;
+  }else{
+    vs.innerHTML=`<div style="padding:0 18px 0;"><div class="video-wrap"><div class="video-placeholder"><div class="play-icon">▶</div><div>Demo coming soon</div></div></div></div>`;
   }
-
-  // Screenshots
-  const sc = document.getElementById('m-screenshots');
-  if (app.screenshots && app.screenshots.length > 0) {
-    sc.innerHTML = app.screenshots.map(s => `<img src="${s}" style="height:140px;border-radius:10px;border:1px solid var(--border);" />`).join('');
-  } else {
-    sc.innerHTML = `<div class="modal-screenshot-ph">Screenshot 1</div><div class="modal-screenshot-ph">Screenshot 2</div>`;
-  }
-
-  // Features
-  const fl = document.getElementById('m-features');
-  fl.innerHTML = (app.features || []).map(f => `<li>${f}</li>`).join('');
-
+  const sc=document.getElementById('m-screenshots');
+  sc.innerHTML=app.screenshots&&app.screenshots.length>0?app.screenshots.map(u=>`<img src="${esc(u)}" style="height:125px;border-radius:8px;border:1px solid var(--border);" />`).join(''):`<div class="modal-screenshot-ph">Screenshot 1</div><div class="modal-screenshot-ph">Screenshot 2</div>`;
+  document.getElementById('m-features').innerHTML=(app.features||[]).map(f=>`<li>${esc(f)}</li>`).join('');
   document.getElementById('product-overlay').classList.add('open');
 }
+function closePM(e){if(e.target.id==='product-overlay')document.getElementById('product-overlay').classList.remove('open');}
+function closePMD(){document.getElementById('product-overlay').classList.remove('open');}
 
-function closeProductModal(e) {
-  if (e.target.id === 'product-overlay') document.getElementById('product-overlay').classList.remove('open');
-}
-function closeProductModalDirect() {
+// checkout
+let deliveredOrder=null,isPaying=false;
+function openCheckout(){
+  if(!currentApp)return;
+  deliveredOrder=null;
   document.getElementById('product-overlay').classList.remove('open');
-}
-
-// ── CHECKOUT ──
-function openCheckout() {
-  if (!currentApp) return;
-  deliveredOrder = null;
-  document.getElementById('product-overlay').classList.remove('open');
-  document.getElementById('checkout-product-name').textContent = 'Purchasing: ' + currentApp.name;
-  document.getElementById('checkout-amount').textContent = store.settings.currency + currentApp.price.toLocaleString();
-  setCheckoutState(false, 'Secure payment. License key delivered instantly after verification.', false);
+  document.getElementById('checkout-product-name').textContent='Purchasing: '+currentApp.name;
+  document.getElementById('checkout-amount').textContent=store.settings.currency+Number(currentApp.price).toLocaleString();
+  setCS(false,'Secure payment. License key delivered instantly.',false);
   document.getElementById('checkout-overlay').classList.add('open');
 }
-
-function closeCheckout(e) {
-  if (e.target.id === 'checkout-overlay') document.getElementById('checkout-overlay').classList.remove('open');
+function closeCheckout(e){if(e.target.id==='checkout-overlay')document.getElementById('checkout-overlay').classList.remove('open');}
+function setCS(loading,note,isError){
+  isPaying=loading;
+  const pb=document.getElementById('pay-btn'),cn=document.getElementById('checkout-note');
+  if(pb){pb.disabled=loading;pb.textContent=loading?'Preparing...':'Pay with Razorpay →';}
+  if(cn){cn.textContent=note;cn.className='checkout-note'+(isError?' error':'');}
 }
-
-function setCheckoutState(loading, note, isError) {
-  isProcessingPayment = loading;
-  const payBtn = document.getElementById('pay-btn');
-  const checkoutNote = document.getElementById('checkout-note');
-  payBtn.disabled = loading;
-  payBtn.textContent = loading ? 'Preparing secure checkout...' : 'Pay with Razorpay →';
-  checkoutNote.textContent = note;
-  checkoutNote.className = 'checkout-note' + (isError ? ' error' : '');
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function renderDeliveredOrder(order) {
-  deliveredOrder = order;
-  document.getElementById('success-license').textContent = order.license_key;
-  document.getElementById('success-meta').innerHTML = `
-    <div><strong>App:</strong> ${escapeHtml(order.app_name)}</div>
-    <div><strong>Email:</strong> ${escapeHtml(order.customer_email)}</div>
-    <div><strong>Payment ID:</strong> ${escapeHtml(order.razorpay_payment_id)}</div>
-  `;
-  document.getElementById('success-footer').textContent = order.referral_code
-    ? `Referral code ${order.referral_code} has been attached to this order.`
-    : 'Your order has also been recorded in Supabase.';
+function renderOrder(order){
+  deliveredOrder=order;
+  const l=document.getElementById('success-license');if(l)l.textContent=order.license_key;
+  const m=document.getElementById('success-meta');if(m)m.innerHTML=`<div><strong>App:</strong> ${esc(order.app_name)}</div><div><strong>Email:</strong> ${esc(order.customer_email)}</div><div><strong>Payment ID:</strong> ${esc(order.razorpay_payment_id)}</div>`;
+  const f=document.getElementById('success-footer');if(f)f.textContent=order.referral_code?`Referral code ${order.referral_code} attached.`:'Order recorded in Supabase.';
   document.getElementById('success-overlay').classList.add('open');
 }
-
-async function processPayment() {
-  const email = document.getElementById('checkout-email').value.trim();
-  const referralCode = document.getElementById('checkout-ref').value.trim();
-
-  if (!currentApp) {
-    showToast('Please choose an app first', false);
-    return;
-  }
-  if (!email || !email.includes('@')) {
-    showToast('Please enter a valid email address', false);
-    return;
-  }
-  if (isProcessingPayment) return;
-  if (!window.Razorpay) {
-    showToast('Razorpay checkout failed to load. Refresh and try again.', false);
-    return;
-  }
-
-  setCheckoutState(true, 'Creating your Razorpay order...', false);
-
-  try {
-    const orderResponse = await fetch(`${API_BASE_URL}/api/create-order`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        appId: currentApp.id,
-        email,
-        referralCode
-      })
-    });
-
-    const orderData = await orderResponse.json();
-    if (!orderResponse.ok) {
-      throw new Error(orderData.error || 'Could not create Razorpay order');
-    }
-
-    const razorpay = new window.Razorpay({
-      key: orderData.keyId,
-      amount: orderData.amount,
-      currency: orderData.currency,
-      name: store.settings.name,
-      description: `Purchase ${currentApp.name}`,
-      order_id: orderData.orderId,
-      prefill: { email },
-      notes: {
-        app_id: String(currentApp.id),
-        referral_code: referralCode
-      },
-      theme: { color: '#7c6fff' },
-      modal: {
-        ondismiss: () => {
-          setCheckoutState(false, 'Checkout was closed before payment completed.', true);
-        }
-      },
-      handler: async function (paymentResult) {
-        setCheckoutState(true, 'Verifying payment and delivering your license...', false);
-
-        try {
-          const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              appId: currentApp.id,
-              email,
-              referralCode,
-              ...paymentResult
-            })
-          });
-
-          const verifyData = await verifyResponse.json();
-          if (!verifyResponse.ok) {
-            throw new Error(verifyData.error || 'Payment verification failed');
-          }
-
+async function processPayment(){
+  if(isPaying)return;
+  const email=document.getElementById('checkout-email')?.value.trim();
+  const ref=document.getElementById('checkout-ref')?.value.trim();
+  if(!currentApp){showToast('Choose an app first',false);return;}
+  if(!email||!email.includes('@')){showToast('Enter a valid email',false);return;}
+  if(!window.Razorpay){showToast('Razorpay not loaded. Refresh page.',false);return;}
+  setCS(true,'Creating your order...',false);
+  try{
+    const oR=await fetch(`${API}/api/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({appId:currentApp.id,email,referralCode:ref})});
+    let oD={};
+    try{oD=await oR.json();}catch(e){throw new Error('Server error: Invalid response. Check console.');}
+    if(!oR.ok)throw new Error(oD.error||oD.message||'Could not create order');
+    const rz=new window.Razorpay({
+      key:oD.keyId,amount:oD.amount,currency:oD.currency||'INR',
+      name:store.settings.name,description:'Purchase: '+currentApp.name,
+      order_id:oD.orderId,prefill:{email},
+      notes:{app_id:String(currentApp.id),referral_code:ref},
+      theme:{color:'#7c6fff'},
+      modal:{ondismiss:()=>setCS(false,'Checkout closed.',true)},
+      handler:async function(pr){
+        setCS(true,'Verifying payment...',false);
+        try{
+          const vR=await fetch(`${API}/api/verify-payment`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({appId:currentApp.id,email,referralCode:ref,...pr})});
+          let vD={};
+          try{vD=await vR.json();}catch(e){throw new Error('Server error: Invalid response on verification');}
+          if(!vR.ok)throw new Error(vD.error||vD.message||'Verification failed');
           document.getElementById('checkout-overlay').classList.remove('open');
-          renderDeliveredOrder(verifyData.order);
-          setCheckoutState(false, 'Secure payment. License key delivered instantly after verification.', false);
-          showToast('Payment verified and license delivered!', true);
-        } catch (error) {
-          console.error(error);
-          setCheckoutState(false, error.message || 'Payment verification failed.', true);
-          showToast(error.message || 'Payment verification failed', false);
-        }
+          renderOrder(vD.order);
+          setCS(false,'Secure payment. License key delivered instantly.',false);
+          showToast('Payment verified! License delivered.',true);
+        }catch(err){setCS(false,err.message||'Verification failed. Contact support.',true);showToast(err.message,false);}
       }
     });
+    rz.on('payment.failed',r=>{const reason=r?.error?.description||'Payment failed.';setCS(false,reason,true);showToast(reason,false);});
+    rz.open();
+  }catch(err){setCS(false,err.message||'Could not start checkout.',true);showToast(err.message||'Error',false);}
+}
+function openDeliveredDownload(){const u=deliveredOrder?.download_url||currentApp?.downloadUrl||'#';if(u&&u!=='#'){window.open(u,'_blank');return;}showToast('Download link not configured yet',false);}
+function openDeliveredTutorial(){const u=deliveredOrder?.tutorial_url||currentApp?.tutorialUrl||'#';if(u&&u!=='#'){window.open(u,'_blank');return;}document.getElementById('success-overlay').classList.remove('open');showToast('Tutorial not configured yet',false);}
+function copyLicense(){const t=document.getElementById('success-license')?.textContent;if(t)navigator.clipboard.writeText(t).then(()=>showToast('Copied!',true));}
 
-    razorpay.on('payment.failed', function (response) {
-      const reason = response?.error?.description || 'Payment failed. Please try again.';
-      setCheckoutState(false, reason, true);
-      showToast(reason, false);
-    });
+// earn
+function renderEarnPage(){document.getElementById('earn-ref-code').textContent='EARN-XXXXX';}
+function generateRef(){const n=document.getElementById('ref-name-input')?.value.trim();if(!n){showToast('Enter your name first',false);return;}const c='EARN-'+n.replace(/\s+/g,'').toUpperCase().substring(0,5)+Math.floor(Math.random()*900+100);document.getElementById('earn-ref-code').textContent=c;showToast('Referral code generated!',true);}
+function copyRef(){const c=document.getElementById('earn-ref-code')?.textContent;if(c)navigator.clipboard.writeText(c).then(()=>showToast('Copied!',true));}
 
-    razorpay.open();
-  } catch (error) {
-    console.error(error);
-    setCheckoutState(false, error.message || 'Could not start checkout.', true);
-    showToast(error.message || 'Could not start checkout', false);
+// ── EASTER EGG: tap 🔮 12 times to open admin ──
+let eggCount=0,eggTimer=null;
+function easterEggTap(){
+  eggCount++;clearTimeout(eggTimer);
+  const hint=document.getElementById('egg-hint');
+  const left=12-eggCount;
+  if(eggCount>=12){
+    eggCount=0;if(hint){hint.textContent='';hint.classList.remove('show');}
+    showAdminLogin();return;
   }
+  if(eggCount>=8){if(hint){hint.textContent=`${left} more...`;hint.classList.add('show');}}
+  else if(eggCount>=4){if(hint){hint.textContent='Keep going...';hint.classList.add('show');}}
+  eggTimer=setTimeout(()=>{eggCount=0;if(hint){hint.textContent='';hint.classList.remove('show');}},3000);
 }
 
-function openDeliveredDownload() {
-  const url = deliveredOrder?.download_url || currentApp?.downloadUrl || '#';
-  if (url && url !== '#') {
-    window.open(url, '_blank');
-    return;
-  }
-
-  showToast('Download link will be configured in admin panel', false);
-}
-
-function openDeliveredTutorial() {
-  const url = deliveredOrder?.tutorial_url || currentApp?.tutorialUrl || '#';
-  if (url && url !== '#') {
-    window.open(url, '_blank');
-    return;
-  }
-
-  document.getElementById('success-overlay').classList.remove('open');
-  showToast('Tutorial link is not configured yet', false);
-}
-
-function copyLicense() {
-  const text = document.getElementById('success-license').textContent;
-  navigator.clipboard.writeText(text).then(() => showToast('License key copied!', true));
-}
-
-// ── EARN PAGE ──
-function renderEarnPage() {
-  // Show placeholder until user generates one
-  document.getElementById('earn-ref-code').textContent = 'EARN-XXXXX';
-}
-
-function generateRef() {
-  const name = document.getElementById('ref-name-input').value.trim();
-  if (!name) { showToast('Enter your name first', false); return; }
-  const code = 'EARN-' + name.replace(/\s+/g,'').toUpperCase().substring(0,5) + Math.floor(Math.random()*900+100);
-  document.getElementById('earn-ref-code').textContent = code;
-  showToast('Referral code generated!', true);
-}
-
-function copyRef() {
-  const code = document.getElementById('earn-ref-code').textContent;
-  navigator.clipboard.writeText(code).then(() => showToast('Code copied!', true));
-}
-
-// ── ADMIN ──
-let adminLoggedIn = false;
-
-function showAdminLogin() {
-  if (adminLoggedIn) { showPage('admin'); return; }
-  document.getElementById('admin-pw-input').value = '';
-  document.getElementById('admin-pw-error').style.display = 'none';
+// admin
+let adminLoggedIn=false;
+function showAdminLogin(){
+  if(adminLoggedIn){showPage('admin');return;}
+  document.getElementById('admin-pw-input').value='';
+  document.getElementById('admin-pw-error').style.display='none';
   document.getElementById('admin-login-overlay').classList.add('open');
 }
-function closeAdminLogin(e) {
-  if (e.target.id === 'admin-login-overlay') document.getElementById('admin-login-overlay').classList.remove('open');
+function closeAdminLogin(e){if(e.target.id==='admin-login-overlay')document.getElementById('admin-login-overlay').classList.remove('open');}
+function checkAdminPw(){
+  const pw=document.getElementById('admin-pw-input')?.value;
+  if(pw===store.adminPassword){adminLoggedIn=true;document.getElementById('admin-login-overlay').classList.remove('open');showPage('admin');}
+  else document.getElementById('admin-pw-error').style.display='block';
 }
-function checkAdminPw() {
-  const pw = document.getElementById('admin-pw-input').value;
-  if (pw === store.adminPassword) {
-    adminLoggedIn = true;
-    document.getElementById('admin-login-overlay').classList.remove('open');
-    showPage('admin');
-  } else {
-    document.getElementById('admin-pw-error').style.display = 'block';
-  }
+function adminTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('show'));
+  const s=document.getElementById('admin-'+tab);if(s)s.classList.add('show');
 }
-
-function adminTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('show'));
-  document.getElementById('admin-' + tab).classList.add('show');
+function renderAdmin(){
+  renderAdminApps();renderAdminIdeas();renderAdminSI();
+  const sn=document.getElementById('s-name');if(sn)sn.value=store.settings.name;
+  const st=document.getElementById('s-tagline');if(st)st.value=store.settings.tagline;
+  const sc=document.getElementById('s-currency');if(sc)sc.value=store.settings.currency;
+  const scu=document.getElementById('s-customers');if(scu)scu.value=store.settings.customers;
+  const sig=document.getElementById('s-ig');if(sig)sig.value=store.settings.instagram||'';
 }
-
-function renderAdmin() {
-  renderAdminApps();
-  renderAdminIdeas();
-  // Settings
-  document.getElementById('s-name').value = store.settings.name;
-  document.getElementById('s-tagline').value = store.settings.tagline;
-  document.getElementById('s-currency').value = store.settings.currency;
-  document.getElementById('s-customers').value = store.settings.customers;
-  document.getElementById('s-ig').value = store.settings.instagram || '';
-}
-
-function renderAdminApps() {
-  const list = document.getElementById('admin-apps-list');
-  list.innerHTML = store.apps.map(app => `
+function renderAdminApps(){
+  const list=document.getElementById('admin-apps-list');if(!list)return;
+  list.innerHTML=store.apps.map(app=>`
     <div class="admin-card">
-      <div class="admin-card-head" onclick="toggleAdminCard('app-${app.id}')">
-        <h3>${app.emoji || '📦'} ${app.name} <span style="font-size:12px;color:var(--text3);font-weight:400;">${store.settings.currency}${app.price}</span></h3>
-        <span style="font-size:13px;color:var(--text3);">▼</span>
+      <div class="admin-card-head" onclick="toggleCard('app-${app.id}')">
+        <h3>${esc(app.emoji)} ${esc(app.name)} <span style="font-size:10px;color:var(--text3);font-weight:400;">${esc(store.settings.currency)}${app.price}</span></h3>
+        <span style="font-size:11px;color:var(--text3);">▼</span>
       </div>
       <div class="admin-card-body" id="app-${app.id}" style="display:none;">
         <div class="admin-grid">
-          <div class="field-group">
-            <label class="field-label">App Name</label>
-            <input class="field-input" id="a-name-${app.id}" value="${app.name}" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Category</label>
-            <input class="field-input" id="a-cat-${app.id}" value="${app.category || ''}" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Emoji Icon</label>
-            <input class="field-input" id="a-emoji-${app.id}" value="${app.emoji || '📦'}" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Price (${store.settings.currency})</label>
-            <input class="field-input" id="a-price-${app.id}" type="number" value="${app.price}" />
-          </div>
+          <div class="field-group"><label class="field-label">Name</label><input class="field-input" id="a-name-${app.id}" value="${esc(app.name)}" /></div>
+          <div class="field-group"><label class="field-label">Category</label><input class="field-input" id="a-cat-${app.id}" value="${esc(app.category)}" /></div>
+          <div class="field-group"><label class="field-label">Emoji</label><input class="field-input" id="a-emoji-${app.id}" value="${esc(app.emoji)}" /></div>
+          <div class="field-group"><label class="field-label">Price</label><input class="field-input" id="a-price-${app.id}" type="number" value="${app.price}" /></div>
         </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Short Description (card)</label>
-          <input class="field-input" id="a-short-${app.id}" value="${app.shortDesc}" />
-        </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Full Description (product page)</label>
-          <textarea class="field-input textarea" id="a-full-${app.id}">${app.fullDesc || ''}</textarea>
-        </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Features (one per line)</label>
-          <textarea class="field-input textarea" id="a-features-${app.id}">${(app.features || []).join('\n')}</textarea>
-        </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">YouTube Video URL</label>
-          <input class="field-input" id="a-video-${app.id}" value="${app.videoUrl || ''}" placeholder="https://youtube.com/watch?v=..." />
-        </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Screenshot URLs (one per line)</label>
-          <textarea class="field-input textarea" id="a-screenshots-${app.id}" placeholder="https://example.com/screenshot1.jpg">${(app.screenshots || []).join('\n')}</textarea>
-        </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Download URL</label>
-          <input class="field-input" id="a-dl-${app.id}" value="${app.downloadUrl || ''}" placeholder="https://..." />
-        </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Tutorial URL</label>
-          <input class="field-input" id="a-tutorial-${app.id}" value="${app.tutorialUrl || ''}" placeholder="https://..." />
-        </div>
-        <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer;">
-            <input type="checkbox" id="a-featured-${app.id}" ${app.featured ? 'checked' : ''} />
-            Mark as Featured
-          </label>
-        </div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Short Description</label><input class="field-input" id="a-short-${app.id}" value="${esc(app.shortDesc)}" /></div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Full Description</label><textarea class="field-input textarea" id="a-full-${app.id}">${esc(app.fullDesc||'')}</textarea></div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Features (one per line)</label><textarea class="field-input textarea" id="a-features-${app.id}">${esc((app.features||[]).join('\n'))}</textarea></div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">YouTube URL</label><input class="field-input" id="a-video-${app.id}" value="${esc(app.videoUrl||'')}" placeholder="https://youtube.com/watch?v=..." /></div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Screenshot URLs (one per line)</label><textarea class="field-input textarea" id="a-ss-${app.id}">${esc((app.screenshots||[]).join('\n'))}</textarea></div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Download URL</label><input class="field-input" id="a-dl-${app.id}" value="${esc(app.downloadUrl||'')}" /></div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Tutorial URL</label><input class="field-input" id="a-tut-${app.id}" value="${esc(app.tutorialUrl||'')}" /></div>
+        <div style="margin-top:9px;"><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer;"><input type="checkbox" id="a-featured-${app.id}" ${app.featured?'checked':''} /> Mark as Featured</label></div>
         <div class="admin-actions">
-          <button class="btn-save" onclick='saveApp(${JSON.stringify(app.id)})'>Save App</button>
+          <button class="btn-save" onclick='saveApp(${JSON.stringify(app.id)})'>Save</button>
           <button class="btn-danger" onclick='deleteApp(${JSON.stringify(app.id)})'>Delete</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
-function renderAdminIdeas() {
-  const list = document.getElementById('admin-ideas-list');
-  list.innerHTML = store.ideas.map(idea => `
+function renderAdminIdeas(){
+  const list=document.getElementById('admin-ideas-list');if(!list)return;
+  list.innerHTML=store.ideas.map(idea=>`
     <div class="admin-card">
-      <div class="admin-card-head" onclick="toggleAdminCard('idea-${idea.id}')">
-        <h3>${idea.emoji || '💡'} ${idea.name}</h3>
-        <span style="font-size:13px;color:var(--text3);">▼</span>
+      <div class="admin-card-head" onclick="toggleCard('idea-${idea.id}')">
+        <h3>${esc(idea.emoji)} ${esc(idea.name)}</h3><span style="font-size:11px;color:var(--text3);">▼</span>
       </div>
       <div class="admin-card-body" id="idea-${idea.id}" style="display:none;">
         <div class="admin-grid">
-          <div class="field-group">
-            <label class="field-label">Name</label>
-            <input class="field-input" id="i-name-${idea.id}" value="${idea.name}" />
-          </div>
-          <div class="field-group">
-            <label class="field-label">Emoji</label>
-            <input class="field-input" id="i-emoji-${idea.id}" value="${idea.emoji || '💡'}" />
-          </div>
+          <div class="field-group"><label class="field-label">Name</label><input class="field-input" id="i-name-${idea.id}" value="${esc(idea.name)}" /></div>
+          <div class="field-group"><label class="field-label">Emoji</label><input class="field-input" id="i-emoji-${idea.id}" value="${esc(idea.emoji)}" /></div>
         </div>
-        <div class="field-group" style="margin-top:12px;">
-          <label class="field-label">Description</label>
-          <input class="field-input" id="i-desc-${idea.id}" value="${idea.desc}" />
-        </div>
+        <div class="field-group" style="margin-top:9px;"><label class="field-label">Description</label><input class="field-input" id="i-desc-${idea.id}" value="${esc(idea.desc)}" /></div>
         <div class="admin-actions">
           <button class="btn-save" onclick='saveIdea(${JSON.stringify(idea.id)})'>Save</button>
           <button class="btn-danger" onclick='deleteIdea(${JSON.stringify(idea.id)})'>Delete</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
-function toggleAdminCard(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+function renderAdminSI(){
+  const list=document.getElementById('admin-submitted-ideas-list');if(!list)return;
+  if(!store.submittedIdeas.length){list.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--text3);">No community ideas yet.</div>`;return;}
+  const sorted=[...store.submittedIdeas].sort((a,b)=>(b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
+  list.innerHTML=sorted.map(idea=>{const sc=idea.votes.up-idea.votes.down;return`
+    <div class="admin-card" style="margin-bottom:9px;">
+      <div class="admin-card-body" style="padding:12px 14px;">
+        <div style="display:flex;align-items:flex-start;gap:9px;">
+          <div style="font-size:24px;line-height:1;">${esc(idea.emoji)}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:13px;margin-bottom:2px;">${esc(idea.name)} <span style="font-size:10px;color:var(--text3);font-weight:400;">${esc(idea.category)}</span></div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">${esc(idea.desc)}</div>
+            <div style="font-size:11px;color:var(--text3);">${idea.submitter?`by <strong style="color:var(--text2)">${esc(idea.submitter)}</strong> · `:''}▲ ${idea.votes.up} · ▼ ${idea.votes.down} · <strong style="color:${sc>=0?'var(--green)':'var(--red)'}">${sc>0?'+':''}${sc}</strong></div>
+          </div>
+          <button class="btn-danger" style="padding:5px 9px;font-size:11px;" onclick='deleteSI(${JSON.stringify(idea.id)})'>Del</button>
+        </div>
+      </div>
+    </div>`;}).join('');
 }
-
-async function saveApp(id) {
-  const app = store.apps.find(a => a.id === id);
-  if (!app) return;
-  const payload = appToDb({
-    ...app,
-    name: document.getElementById(`a-name-${id}`).value.trim(),
-    category: document.getElementById(`a-cat-${id}`).value.trim(),
-    emoji: document.getElementById(`a-emoji-${id}`).value.trim(),
-    price: parseInt(document.getElementById(`a-price-${id}`).value, 10) || 0,
-    shortDesc: document.getElementById(`a-short-${id}`).value.trim(),
-    fullDesc: document.getElementById(`a-full-${id}`).value.trim(),
-    features: document.getElementById(`a-features-${id}`).value.split('\n').map(f => f.trim()).filter(Boolean),
-    videoUrl: document.getElementById(`a-video-${id}`).value.trim(),
-    screenshots: document.getElementById(`a-screenshots-${id}`).value.split('\n').map(u => u.trim()).filter(Boolean),
-    downloadUrl: document.getElementById(`a-dl-${id}`).value.trim() || '#',
-    tutorialUrl: document.getElementById(`a-tutorial-${id}`).value.trim() || '#',
-    featured: document.getElementById(`a-featured-${id}`).checked
-  });
-
-  const { data, error } = await supabaseClient
-    .from('apps')
-    .update(payload)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error saving app:', error);
-    showToast('Could not save app', false);
-    return;
-  }
-
-  Object.assign(app, normalizeApp(data || { ...app, ...payload }));
-  showToast('App saved to Supabase!', true);
-  syncViews();
+function toggleCard(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+async function saveApp(id){
+  const app=store.apps.find(a=>a.id===id);if(!app)return;
+  const payload=aToDb({...app,name:document.getElementById(`a-name-${id}`)?.value.trim(),category:document.getElementById(`a-cat-${id}`)?.value.trim(),emoji:document.getElementById(`a-emoji-${id}`)?.value.trim(),price:parseInt(document.getElementById(`a-price-${id}`)?.value,10)||0,shortDesc:document.getElementById(`a-short-${id}`)?.value.trim(),fullDesc:document.getElementById(`a-full-${id}`)?.value.trim(),features:document.getElementById(`a-features-${id}`)?.value.split('\n').map(f=>f.trim()).filter(Boolean),videoUrl:document.getElementById(`a-video-${id}`)?.value.trim(),screenshots:document.getElementById(`a-ss-${id}`)?.value.split('\n').map(u=>u.trim()).filter(Boolean),downloadUrl:document.getElementById(`a-dl-${id}`)?.value.trim()||'#',tutorialUrl:document.getElementById(`a-tut-${id}`)?.value.trim()||'#',featured:document.getElementById(`a-featured-${id}`)?.checked});
+  const{data,error}=await SB.from('apps').update(payload).eq('id',id).select().single();
+  if(error){showToast('Could not save app',false);return;}
+  Object.assign(app,nA(data||{...app,...payload}));showToast('App saved!',true);syncViews();
 }
-
-async function deleteApp(id) {
-  if (!confirm('Delete this app?')) return;
-  const { error } = await supabaseClient
-    .from('apps')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error deleting app:', error);
-    showToast('Could not delete app', false);
-    return;
-  }
-
-  store.apps = store.apps.filter(a => a.id !== id);
-  showToast('App deleted from Supabase', true);
-  syncViews();
+async function deleteApp(id){if(!confirm('Delete this app?'))return;const{error}=await SB.from('apps').delete().eq('id',id);if(error){showToast('Could not delete',false);return;}store.apps=store.apps.filter(a=>a.id!==id);showToast('Deleted',true);syncViews();}
+async function addNewApp(){
+  const payload=aToDb({name:'New App',category:'App',emoji:'📦',shortDesc:'Short description.',fullDesc:'Full description.',price:999,features:['Feature 1','Feature 2'],screenshots:[],videoUrl:'',downloadUrl:'#',tutorialUrl:'#',featured:false,votes:{up:0,down:0}});
+  const{data,error}=await SB.from('apps').insert(payload).select().single();
+  if(error){showToast('Could not add app',false);return;}
+  const na=nA(data||payload);store.apps.push(na);syncViews();
+  setTimeout(()=>{const el=document.getElementById('app-'+na.id);if(el){el.style.display='block';el.scrollIntoView({behavior:'smooth'});}},100);
 }
-
-async function addNewApp() {
-  const payload = appToDb({
-    name: 'New App', category: 'App', emoji: '📦',
-    shortDesc: 'Short description here.',
-    fullDesc: 'Full description here.',
-    price: 999, features: ['Feature 1', 'Feature 2'],
-    screenshots: [], videoUrl: '',
-    downloadUrl: '#', tutorialUrl: '#',
-    featured: false,
-    votes: { up: 0, down: 0 }
-  });
-
-  const { data, error } = await supabaseClient
-    .from('apps')
-    .insert(payload)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error adding app:', error);
-    showToast('Could not add app', false);
-    return;
-  }
-
-  const newApp = normalizeApp(data || payload);
-  store.apps.push(newApp);
-  syncViews();
-  setTimeout(() => {
-    const el = document.getElementById('app-' + newApp.id);
-    if (el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth' }); }
-  }, 100);
+async function saveIdea(id){
+  const idea=store.ideas.find(i=>i.id===id);if(!idea)return;
+  const payload=iToDb({...idea,name:document.getElementById(`i-name-${id}`)?.value.trim(),emoji:document.getElementById(`i-emoji-${id}`)?.value.trim(),desc:document.getElementById(`i-desc-${id}`)?.value.trim()});
+  const{data,error}=await SB.from('ideas').update(payload).eq('id',id).select().single();
+  if(error){showToast('Could not save',false);return;}
+  Object.assign(idea,nI(data||{...idea,...payload}));showToast('Saved!',true);syncViews();
 }
-
-async function saveIdea(id) {
-  const idea = store.ideas.find(i => i.id === id);
-  if (!idea) return;
-  const payload = ideaToDb({
-    ...idea,
-    name: document.getElementById(`i-name-${id}`).value.trim(),
-    emoji: document.getElementById(`i-emoji-${id}`).value.trim(),
-    desc: document.getElementById(`i-desc-${id}`).value.trim()
-  });
-
-  const { data, error } = await supabaseClient
-    .from('ideas')
-    .update(payload)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error saving idea:', error);
-    showToast('Could not save idea', false);
-    return;
-  }
-
-  Object.assign(idea, normalizeIdea(data || { ...idea, ...payload }));
-  showToast('Idea saved to Supabase!', true);
-  syncViews();
+async function deleteIdea(id){if(!confirm('Delete?'))return;const{error}=await SB.from('ideas').delete().eq('id',id);if(error){showToast('Could not delete',false);return;}store.ideas=store.ideas.filter(i=>i.id!==id);showToast('Deleted',true);syncViews();}
+async function addNewIdea(){
+  const payload=iToDb({name:'New Idea',emoji:'💡',desc:'Describe this idea.',votes:{up:0,down:0}});
+  const{data,error}=await SB.from('ideas').insert(payload).select().single();
+  if(error){showToast('Could not add',false);return;}
+  const ni=nI(data||payload);store.ideas.push(ni);syncViews();
+  setTimeout(()=>{const el=document.getElementById('idea-'+ni.id);if(el){el.style.display='block';el.scrollIntoView({behavior:'smooth'});}},100);
 }
+async function deleteSI(id){if(!confirm('Delete this idea?'))return;const{error}=await SB.from('submitted_ideas').delete().eq('id',id);if(error){showToast('Could not delete',false);return;}store.submittedIdeas=store.submittedIdeas.filter(i=>i.id!==id);showToast('Deleted',true);renderAdminSI();updateBadge();}
+function saveSettings(){store.settings.name=document.getElementById('s-name')?.value;store.settings.tagline=document.getElementById('s-tagline')?.value;store.settings.currency=document.getElementById('s-currency')?.value;store.settings.customers=document.getElementById('s-customers')?.value;store.settings.instagram=document.getElementById('s-ig')?.value;saveLocal();showToast('Settings saved!',true);}
+function changePassword(){const pw=document.getElementById('new-pw')?.value,c=document.getElementById('confirm-pw')?.value;if(!pw){showToast('Enter a password',false);return;}if(pw!==c){showToast('Passwords do not match',false);return;}store.adminPassword=pw;saveLocal();showToast('Password updated!',true);document.getElementById('new-pw').value='';document.getElementById('confirm-pw').value='';}
+function showToast(msg,success){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast show'+(success?' success':'');clearTimeout(t._t);t._t=setTimeout(()=>{t.className='toast';},2800);}
 
-async function deleteIdea(id) {
-  if (!confirm('Delete this idea?')) return;
-  const { error } = await supabaseClient
-    .from('ideas')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error deleting idea:', error);
-    showToast('Could not delete idea', false);
-    return;
-  }
-
-  store.ideas = store.ideas.filter(i => i.id !== id);
-  showToast('Idea deleted from Supabase', true);
-  syncViews();
-}
-
-async function addNewIdea() {
-  const payload = ideaToDb({ name: 'New Idea', emoji: '💡', desc: 'Describe this idea.', votes: { up: 0, down: 0 } });
-  const { data, error } = await supabaseClient
-    .from('ideas')
-    .insert(payload)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error adding idea:', error);
-    showToast('Could not add idea', false);
-    return;
-  }
-
-  const newIdea = normalizeIdea(data || payload);
-  store.ideas.push(newIdea);
-  syncViews();
-  setTimeout(() => {
-    const el = document.getElementById('idea-' + newIdea.id);
-    if (el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth' }); }
-  }, 100);
-}
-
-function saveSettings() {
-  store.settings.name = document.getElementById('s-name').value;
-  store.settings.tagline = document.getElementById('s-tagline').value;
-  store.settings.currency = document.getElementById('s-currency').value;
-  store.settings.customers = document.getElementById('s-customers').value;
-  store.settings.instagram = document.getElementById('s-ig').value;
-  save(); showToast('Settings saved!', true);
-}
-
-function changePassword() {
-  const pw = document.getElementById('new-pw').value;
-  const confirm = document.getElementById('confirm-pw').value;
-  if (!pw) { showToast('Enter a password', false); return; }
-  if (pw !== confirm) { showToast('Passwords do not match', false); return; }
-  store.adminPassword = pw;
-  save(); showToast('Password updated!', true);
-  document.getElementById('new-pw').value = '';
-  document.getElementById('confirm-pw').value = '';
-}
-
-// ── TOAST ──
-function showToast(msg, success) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + (success ? 'success' : '');
-  setTimeout(() => t.className = 'toast', 2500);
-}
-
-// ── INIT ──
 showPage('store');
 initStore();
 </script>

@@ -36,6 +36,14 @@ const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
+// Log configuration status on startup
+if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+  console.warn('⚠️  WARNING: Razorpay credentials not found in .env');
+}
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('⚠️  WARNING: Supabase credentials not found in .env');
+}
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
@@ -174,7 +182,12 @@ function verifySignature({ orderId, paymentId, signature }) {
 
 async function handleCreateOrder(req, res) {
   if (!isConfigured()) {
-    sendJson(res, 500, { error: 'Server is missing Razorpay or Supabase environment variables.' });
+    console.error('❌ handleCreateOrder: Missing configuration');
+    console.error('   RAZORPAY_KEY_ID:', RAZORPAY_KEY_ID ? '✓ Set' : '✗ Missing');
+    console.error('   RAZORPAY_KEY_SECRET:', RAZORPAY_KEY_SECRET ? '✓ Set' : '✗ Missing');
+    console.error('   SUPABASE_URL:', SUPABASE_URL ? '✓ Set' : '✗ Missing');
+    console.error('   SUPABASE_SERVICE_ROLE_KEY:', SUPABASE_SERVICE_ROLE_KEY ? '✓ Set' : '✗ Missing');
+    sendJson(res, 500, { error: 'Server configuration incomplete. Check terminal for details.' });
     return;
   }
 
@@ -232,7 +245,8 @@ async function handleCreateOrder(req, res) {
 
 async function handleVerifyPayment(req, res) {
   if (!isConfigured()) {
-    sendJson(res, 500, { error: 'Server is missing Razorpay or Supabase environment variables.' });
+    console.error('❌ handleVerifyPayment: Missing configuration');
+    sendJson(res, 500, { error: 'Server configuration incomplete. Check terminal for details.' });
     return;
   }
 
@@ -359,6 +373,18 @@ const server = http.createServer(async (req, res) => {
     }
 
     const pathname = new URL(req.url, `http://${req.headers.host}`).pathname;
+
+    if (req.method === 'GET' && pathname === '/api/health') {
+      sendJson(res, 200, {
+        status: 'ok',
+        configured: isConfigured(),
+        credentials: {
+          razorpay: Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET),
+          supabase: Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY)
+        }
+      });
+      return;
+    }
 
     if (req.method === 'POST' && pathname === '/api/create-order') {
       await handleCreateOrder(req, res);
