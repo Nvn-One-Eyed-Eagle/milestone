@@ -191,7 +191,7 @@ async function handleCreateOrder(req, res) {
     return;
   }
 
-  const { appId, email, referralCode } = await readRequestBody(req);
+  const { appId, email, referralCode, amount, receipt } = await readRequestBody(req);
   const normalizedEmail = String(email || '').trim().toLowerCase();
 
   if (!appId) {
@@ -204,25 +204,40 @@ async function handleCreateOrder(req, res) {
     return;
   }
 
-  const app = await getAppById(appId);
-  if (!app) {
-    sendJson(res, 404, { error: 'App not found.' });
-    return;
-  }
+  let orderAmount;
+  let app = null;
+  let orderReceipt = receipt || generateReceipt(appId);
 
-  const amount = Number(app.price) * 100;
-  if (!Number.isFinite(amount) || amount <= 0) {
-    sendJson(res, 400, { error: 'App price is invalid.' });
-    return;
+  // Handle fortune wheel payments
+  if (appId === 'fortune-wheel') {
+    orderAmount = Math.max(1000, Math.min(10000000, Number(amount) || 10000));
+    if (!Number.isFinite(orderAmount) || orderAmount <= 0) {
+      sendJson(res, 400, { error: 'Invalid amount for fortune payment.' });
+      return;
+    }
+  } else {
+    // Handle regular app purchases
+    app = await getAppById(appId);
+    if (!app) {
+      sendJson(res, 404, { error: 'App not found.' });
+      return;
+    }
+
+    orderAmount = Number(app.price) * 100;
+    if (!Number.isFinite(orderAmount) || orderAmount <= 0) {
+      sendJson(res, 400, { error: 'App price is invalid.' });
+      return;
+    }
+    orderReceipt = generateReceipt(app.id);
   }
 
   const order = await createRazorpayOrder({
-    amount,
+    amount: orderAmount,
     currency: 'INR',
-    receipt: generateReceipt(app.id),
+    receipt: orderReceipt,
     notes: {
-      app_id: String(app.id),
-      app_name: String(app.name || ''),
+      app_id: appId === 'fortune-wheel' ? 'fortune' : String(app.id),
+      app_name: appId === 'fortune-wheel' ? 'Fortune Wheel' : String(app.name || ''),
       email: normalizedEmail,
       referral_code: String(referralCode || '').trim()
     }
@@ -233,7 +248,13 @@ async function handleCreateOrder(req, res) {
     amount: order.amount,
     currency: order.currency,
     keyId: RAZORPAY_KEY_ID,
-    app: {
+    app: appId === 'fortune-wheel' ? {
+      id: 'fortune-wheel',
+      name: 'Fortune Wheel',
+      price: orderAmount / 100,
+      downloadUrl: '#',
+      tutorialUrl: '#'
+    } : {
       id: app.id,
       name: app.name,
       price: Number(app.price),
@@ -271,10 +292,13 @@ async function handleVerifyPayment(req, res) {
     return;
   }
 
-  const app = await getAppById(appId);
-  if (!app) {
-    sendJson(res, 404, { error: 'App not found.' });
-    return;
+  let app = null;
+  if (appId !== 'fortune-wheel') {
+    app = await getAppById(appId);
+    if (!app) {
+      sendJson(res, 404, { error: 'App not found.' });
+      return;
+    }
   }
 
   if (!verifySignature({
@@ -300,18 +324,18 @@ async function handleVerifyPayment(req, res) {
   }
 
   const orderRecord = {
-    app_id: app.id,
-    app_name: app.name,
+    app_id: appId === 'fortune-wheel' ? 'fortune' : app.id,
+    app_name: appId === 'fortune-wheel' ? 'Fortune Wheel' : app.name,
     customer_email: normalizedEmail,
-    amount: Number(app.price),
+    amount: appId === 'fortune-wheel' ? 'N/A' : Number(app.price),
     currency: 'INR',
     referral_code: String(referralCode || '').trim() || null,
     razorpay_order_id: razorpayOrderId,
     razorpay_payment_id: razorpayPaymentId,
     payment_signature: razorpaySignature,
-    license_key: generateLicenseKey(app.name),
-    download_url: app.download_url || '#',
-    tutorial_url: app.tutorial_url || '#',
+    license_key: appId === 'fortune-wheel' ? 'FORTUNE-' + Date.now() : generateLicenseKey(app.name),
+    download_url: appId === 'fortune-wheel' ? '' : (app.download_url || '#'),
+    tutorial_url: appId === 'fortune-wheel' ? '' : (app.tutorial_url || '#'),
     status: 'paid'
   };
 
