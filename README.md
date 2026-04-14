@@ -221,7 +221,8 @@ Response:
 3. **Payment Verification**: Idempotent - duplicate payments return existing order
 4. **Admin Panel**: Password protected (set in admin settings)
 5. **Email Validation**: Required for checkout
-6. **Input Sanitization**: XSS prevention via HTML escaping
+6. **Key Access Password**: Product keys can be retrieved later using email + password via server endpoints
+7. **Input Sanitization**: XSS prevention via HTML escaping
 
 ## 🚢 Deployment
 
