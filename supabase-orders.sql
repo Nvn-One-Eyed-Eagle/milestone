@@ -18,3 +18,11 @@ create table if not exists public.orders (
 
 create index if not exists orders_customer_email_idx on public.orders (customer_email);
 create index if not exists orders_app_id_idx on public.orders (app_id);
+
+create table if not exists public.order_access_accounts (
+  customer_email text primary key,
+  password_hash text not null,
+  password_salt text not null,
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  updated_at timestamptz not null default timezone('utc'::text, now())
+);

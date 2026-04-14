@@ -76,6 +76,15 @@ create index if not exists orders_customer_email_idx on public.orders (customer_
 create index if not exists orders_app_id_idx on public.orders (app_id);
 create index if not exists orders_razorpay_payment_id_idx on public.orders (razorpay_payment_id);
 
+-- Order access accounts table
+create table if not exists public.order_access_accounts (
+  customer_email text primary key,
+  password_hash text not null,
+  password_salt text not null,
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  updated_at timestamptz not null default timezone('utc'::text, now())
+);
+
 -- Set up RLS policies (optional - adjust based on your security needs)
 -- Apps: Public read, authenticated write
 alter table public.apps enable row level security;
@@ -96,3 +105,5 @@ create policy "Submitted ideas are viewable by everyone" on public.submitted_ide
 alter table public.orders enable row level security;
 create policy "Orders are viewable by authenticated users" on public.orders
   for select using (auth.role() = 'authenticated');
+
+alter table public.order_access_accounts enable row level security;
