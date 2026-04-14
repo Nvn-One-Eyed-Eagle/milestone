@@ -420,18 +420,30 @@ async function handleVerifyPayment(req, res) {
     status: 'paid'
   };
 
-  const inserted = await supabaseRequest('orders', {
-    method: 'POST',
-    headers: {
-      Prefer: 'return=representation'
-    },
-    body: JSON.stringify(orderRecord)
-  });
+const inserted = await supabaseRequest('orders', {
+  method: 'POST',
+  headers: {
+    Prefer: 'return=representation'
+  },
+  body: JSON.stringify(orderRecord)
+});
 
-  sendJson(res, 200, {
-    success: true,
-    order: Array.isArray(inserted) ? inserted[0] : orderRecord
-  });
+// Send license key email to customer
+const finalOrder = Array.isArray(inserted) ? inserted[0] : orderRecord;
+if (finalOrder.license_key) {
+  await sendLicenseKeyEmail(
+    normalizedEmail,
+    appId === 'fortune-wheel' ? 'Fortune Wheel' : app.name,
+    finalOrder.license_key,
+    finalOrder.download_url || '#',
+    finalOrder.tutorial_url || '#'
+  );
+}
+
+sendJson(res, 200, {
+  success: true,
+  order: finalOrder
+});
 }
 
 function serveStatic(req, res) {
