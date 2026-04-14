@@ -3,6 +3,87 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+const nodemailer = require('nodemailer');
+
+// Email configuration
+const EMAIL_SERVICE = process.env.EMAIL_SERVICE || 'gmail';
+const EMAIL_USER = process.env.EMAIL_USER || '';
+const EMAIL_PASS = process.env.EMAIL_PASS || '';
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'AppVault';
+
+// Initialize email transporter
+let emailTransporter = null;
+if (EMAIL_USER && EMAIL_PASS) {
+  emailTransporter = nodemailer.createTransport({
+    service: EMAIL_SERVICE,
+    auth: {
+      user: EMAIL_USER,
+      pass: EMAIL_PASS
+    }
+  });
+}
+
+// Function to send license key email
+async function sendLicenseKeyEmail(customerEmail, appName, licenseKey, downloadUrl, tutorialUrl) {
+  if (!emailTransporter) {
+    console.warn('⚠️ Email transporter not configured. Skipping email.');
+    return;
+  }
+
+  const emailContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #7c6fff 0%, #5548e8 100%); color: white; padding: 20px; text-align: center;">
+        <h1 style="margin: 0; font-size: 28px;">🎉 Purchase Successful!</h1>
+      </div>
+      <div style="padding: 30px;">
+        <p style="color: #333; font-size: 16px; margin-bottom: 20px;">
+          Thank you for purchasing <strong>${appName}</strong>! Your license key is ready.
+        </p>
+        <div style="background: #f5f5f5; border: 2px dashed #7c6fff; border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
+          <p style="color: #999; font-size: 12px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">Your Product Key</p>
+          <p style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #7c6fff; margin: 0; word-break: break-all; letter-spacing: 2px;">
+            ${licenseKey}
+          </p>
+        </div>
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <p style="color: #856404; margin: 0; font-weight: bold;">⚠️ Keep This Safe</p>
+          <p style="color: #856404; margin: 5px 0 0 0; font-size: 13px;">Your license key is your proof of purchase. Save it in a safe place.</p>
+        </div>
+        <div style="display: flex; gap: 10px; margin: 25px 0; flex-wrap: wrap;">
+          <a href="${downloadUrl}" style="flex: 1; min-width: 140px; background: #7c6fff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600;">⬇️ Download</a>
+          <a href="${tutorialUrl}" style="flex: 1; min-width: 140px; background: #e0e0e0; color: #333; padding: 12px 20px; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600;">📚 Tutorial</a>
+        </div>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0;">
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size: 14px;">Next Steps:</h3>
+          <ol style="color: #666; margin: 0; padding-left: 20px; font-size: 13px;">
+            <li style="margin-bottom: 8px;">Download the app using the button above</li>
+            <li style="margin-bottom: 8px;">Watch the tutorial for setup instructions</li>
+            <li style="margin-bottom: 8px;">Enter your license key when prompted during installation</li>
+            <li>Enjoy! 🚀</li>
+          </ol>
+        </div>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 25px; border-top: 1px solid #e0e0e0; padding-top: 15px;">Need help? Check our documentation or contact support.</p>
+      </div>
+      <div style="background: #f5f5f5; padding: 15px; text-align: center; border-top: 1px solid #e0e0e0;">
+        <p style="color: #999; font-size: 11px; margin: 0;">© 2025 ${EMAIL_FROM_NAME}. All rights reserved.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await emailTransporter.sendMail({
+      from: `${EMAIL_FROM_NAME} <${EMAIL_USER}>`,
+      to: customerEmail,
+      subject: `Your ${appName} License Key - ${licenseKey}`,
+      html: emailContent,
+      text: `Your license key for ${appName}: ${licenseKey}\n\nKeep this safe!`
+    });
+    console.log(`✅ License key email sent to ${customerEmail}`);
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${customerEmail}:`, error.message);
+  }
+}
+
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
 
@@ -339,18 +420,30 @@ async function handleVerifyPayment(req, res) {
     status: 'paid'
   };
 
-  const inserted = await supabaseRequest('orders', {
-    method: 'POST',
-    headers: {
-      Prefer: 'return=representation'
-    },
-    body: JSON.stringify(orderRecord)
-  });
+const inserted = await supabaseRequest('orders', {
+  method: 'POST',
+  headers: {
+    Prefer: 'return=representation'
+  },
+  body: JSON.stringify(orderRecord)
+});
 
-  sendJson(res, 200, {
-    success: true,
-    order: Array.isArray(inserted) ? inserted[0] : orderRecord
-  });
+// Send license key email to customer
+const finalOrder = Array.isArray(inserted) ? inserted[0] : orderRecord;
+if (finalOrder.license_key) {
+  await sendLicenseKeyEmail(
+    normalizedEmail,
+    appId === 'fortune-wheel' ? 'Fortune Wheel' : app.name,
+    finalOrder.license_key,
+    finalOrder.download_url || '#',
+    finalOrder.tutorial_url || '#'
+  );
+}
+
+sendJson(res, 200, {
+  success: true,
+  order: finalOrder
+});
 }
 
 function serveStatic(req, res) {
