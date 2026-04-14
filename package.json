@@ -5,5 +5,8 @@
   "description": "AppVault storefront with Razorpay checkout and Supabase order delivery",
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.7"
   }
 }
