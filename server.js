@@ -123,17 +123,6 @@ function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
 }
 
-function createPasswordHash(password, salt = crypto.randomBytes(16).toString('hex')) {
-  const hash = crypto.scryptSync(String(password), salt, 64).toString('hex');
-  return { salt, hash };
-}
-
-function verifyPassword(password, account) {
-  if (!account?.password_salt || !account?.password_hash) return false;
-  const { hash } = createPasswordHash(password, account.password_salt);
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(account.password_hash, 'hex'));
-}
-
 async function supabaseRequest(resource, options = {}) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${resource}`, {
     ...options,
@@ -161,66 +150,6 @@ async function getAppById(appId) {
   return Array.isArray(rows) ? rows[0] : null;
 }
 
-async function getOrderAccessAccount(email) {
-  const rows = await supabaseRequest(
-    `order_access_accounts?customer_email=eq.${encodeURIComponent(email)}&select=customer_email,password_hash,password_salt`
-  );
-  return Array.isArray(rows) ? rows[0] : null;
-}
-
-async function createOrderAccessAccount(email, password) {
-  const { salt, hash } = createPasswordHash(password);
-  const rows = await supabaseRequest('order_access_accounts', {
-    method: 'POST',
-    headers: {
-      Prefer: 'return=representation'
-    },
-    body: JSON.stringify({
-      customer_email: email,
-      password_hash: hash,
-      password_salt: salt
-    })
-  });
-  return Array.isArray(rows) ? rows[0] : null;
-}
-
-async function verifyOrCreateOrderAccess({ email, password, confirmPassword, allowCreate }) {
-  const normalizedEmail = normalizeEmail(email);
-  const safePassword = String(password || '');
-  const safeConfirmPassword = String(confirmPassword || '');
-
-  if (!normalizedEmail || !normalizedEmail.includes('@')) {
-    throw new Error('A valid email address is required.');
-  }
-
-  if (safePassword.length < 6) {
-    throw new Error('Password must be at least 6 characters.');
-  }
-
-  const existingAccount = await getOrderAccessAccount(normalizedEmail);
-  if (existingAccount) {
-    if (!verifyPassword(safePassword, existingAccount)) {
-      throw new Error('Incorrect key access password.');
-    }
-    return { email: normalizedEmail, created: false };
-  }
-
-  if (!allowCreate) {
-    throw new Error('No key access password found for this email.');
-  }
-
-  if (!safeConfirmPassword) {
-    throw new Error('Please confirm your password.');
-  }
-
-  if (safePassword !== safeConfirmPassword) {
-    throw new Error('Passwords do not match.');
-  }
-
-  await createOrderAccessAccount(normalizedEmail, safePassword);
-  return { email: normalizedEmail, created: true };
-}
-
 async function createRazorpayOrder({ amount, currency, receipt, notes }) {
   const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
   const response = await fetch('https://api.razorpay.com/v1/orders', {
@@ -246,33 +175,28 @@ async function createRazorpayOrder({ amount, currency, receipt, notes }) {
   return data;
 }
 
-async function getOrdersByEmail(email) {
+async function getOrdersByEmailAndPaymentId(email, paymentId) {
   return supabaseRequest(
-    `orders?customer_email=eq.${encodeURIComponent(email)}&status=eq.paid&select=id,app_name,customer_email,license_key,download_url,tutorial_url,amount,currency,created_at,razorpay_payment_id&order=created_at.desc`
+    `orders?customer_email=eq.${encodeURIComponent(email)}&razorpay_payment_id=eq.${encodeURIComponent(paymentId)}&status=eq.paid&select=id,app_name,customer_email,license_key,download_url,tutorial_url,amount,currency,created_at,razorpay_payment_id&order=created_at.desc`
   );
 }
 
 async function handleGetMyKeys(req, res) {
-  const { email, password } = await readRequestBody(req);
+  const { email, paymentId } = await readRequestBody(req);
   const normalizedEmail = normalizeEmail(email);
+  const normalizedPaymentId = String(paymentId || '').trim();
 
   if (!normalizedEmail || !normalizedEmail.includes('@')) {
     sendJson(res, 400, { error: 'A valid email address is required.' });
     return;
   }
 
-  if (!password) {
-    sendJson(res, 400, { error: 'Password is required.' });
+  if (!normalizedPaymentId) {
+    sendJson(res, 400, { error: 'Payment ID is required.' });
     return;
   }
 
-  const account = await getOrderAccessAccount(normalizedEmail);
-  if (!account || !verifyPassword(password, account)) {
-    sendJson(res, 401, { error: 'Incorrect email or password.' });
-    return;
-  }
-
-  const orders = await getOrdersByEmail(normalizedEmail);
+  const orders = await getOrdersByEmailAndPaymentId(normalizedEmail, normalizedPaymentId);
   sendJson(res, 200, {
     success: true,
     orders: Array.isArray(orders) ? orders : []
@@ -299,7 +223,7 @@ async function handleCreateOrder(req, res) {
     return;
   }
 
-  const { appId, email, referralCode, amount, receipt, accessPassword, confirmAccessPassword } = await readRequestBody(req);
+  const { appId, email, referralCode, amount, receipt } = await readRequestBody(req);
   const normalizedEmail = normalizeEmail(email);
 
   if (!appId) {
@@ -310,15 +234,6 @@ async function handleCreateOrder(req, res) {
   if (!normalizedEmail || !normalizedEmail.includes('@')) {
     sendJson(res, 400, { error: 'A valid email address is required.' });
     return;
-  }
-
-  if (appId !== 'fortune-wheel') {
-    await verifyOrCreateOrderAccess({
-      email: normalizedEmail,
-      password: accessPassword,
-      confirmPassword: confirmAccessPassword,
-      allowCreate: true
-    });
   }
 
   let orderAmount;
