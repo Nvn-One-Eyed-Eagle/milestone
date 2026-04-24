@@ -653,31 +653,31 @@
     <div class="keys-hero">
       <div class="hero-badge" style="margin-bottom:1rem;">🔐 License Vault</div>
       <h1>Your <em>product keys</em>, on demand</h1>
-      <p>Use the same email and access password you set during checkout to view all your purchased app keys, downloads, and tutorials.</p>
+      <p>Use your purchase email and Razorpay payment ID to recover your license key, download, and tutorial links.</p>
     </div>
     <div class="keys-layout">
       <div class="keys-card">
-        <h3>Sign In</h3>
-        <p>First purchase? Set this password during checkout. We use it later to unlock your keys.</p>
+        <h3>Recover Purchase</h3>
+        <p>Enter the same email used at checkout and the Razorpay payment ID from your successful payment.</p>
         <div class="form-group">
           <label class="form-label">Email Address</label>
           <input class="form-input" id="keys-email" type="email" placeholder="you@example.com" />
         </div>
         <div class="form-group">
-          <label class="form-label">Access Password</label>
-          <input class="form-input" id="keys-password" type="password" placeholder="Your key access password" onkeydown="if(event.key==='Enter')fetchMyKeys()" />
+          <label class="form-label">Payment ID</label>
+          <input class="form-input" id="keys-payment-id" placeholder="pay_XXXXXXXXXXXXXX" onkeydown="if(event.key==='Enter')fetchMyKeys()" />
         </div>
         <div class="keys-actions">
           <button class="btn-save" onclick="fetchMyKeys()" id="keys-fetch-btn">View Keys</button>
           <button class="btn-add" onclick="logoutKeys()">Clear</button>
         </div>
-        <div class="keys-note" id="keys-note">We only show keys linked to this email after server-side password verification.</div>
+        <div class="keys-note" id="keys-note">We only show the purchase that matches your email and Razorpay payment ID.</div>
       </div>
       <div class="keys-list-card">
         <h3>Saved Purchases</h3>
         <p id="keys-list-sub">Nothing loaded yet.</p>
         <div class="keys-list" id="keys-list">
-          <div class="keys-empty">Sign in to load your purchased apps.</div>
+          <div class="keys-empty">Enter your email and payment ID to load your purchase.</div>
         </div>
       </div>
     </div>
@@ -859,12 +859,10 @@
     </div>
     <div class="checkout-sub" id="checkout-product-name"></div>
     <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="checkout-email" type="email" placeholder="you@example.com" /></div>
-    <div class="form-group"><label class="form-label">Key Access Password</label><input class="form-input" id="checkout-password" type="password" placeholder="Create or enter your password" /></div>
-    <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" id="checkout-password-confirm" type="password" placeholder="Confirm on first purchase" /></div>
     <div class="form-group"><label class="form-label">Referral Code (optional)</label><input class="form-input" id="checkout-ref" placeholder="e.g. EARN-XXXXX" /></div>
     <div class="checkout-total"><div class="label">Total</div><div class="amount" id="checkout-amount"></div></div>
     <button class="btn-pay" id="pay-btn" onclick="processPayment()">Pay with Razorpay →</button>
-    <div class="checkout-note" id="checkout-note">Secure payment. Set this password once so you can reopen all your product keys later from My Keys.</div>
+    <div class="checkout-note" id="checkout-note">Secure payment. Your Razorpay payment ID will be shown after payment and can be used later in My Keys.</div>
   </div>
 </div>
 
@@ -1183,11 +1181,9 @@ function openCheckout(){
   document.getElementById('product-overlay').classList.remove('open');
   document.getElementById('checkout-product-name').textContent='Purchasing: '+currentApp.name;
   document.getElementById('checkout-amount').textContent=store.settings.currency+Number(currentApp.price).toLocaleString();
-  const ce=document.getElementById('checkout-email'),cp=document.getElementById('checkout-password'),cc=document.getElementById('checkout-password-confirm');
+  const ce=document.getElementById('checkout-email');
   if(ce&&!ce.value&&keySession.email)ce.value=keySession.email;
-  if(cp&&!cp.value&&keySession.password)cp.value=keySession.password;
-  if(cc&&!cc.value&&keySession.password)cc.value=keySession.password;
-  setCS(false,'Secure payment. Set this password once so you can reopen all your product keys later from My Keys.',false);
+  setCS(false,'Secure payment. Your Razorpay payment ID will be shown after payment and can be used later in My Keys.',false);
   document.getElementById('checkout-overlay').classList.add('open');
 }
 function closeCheckout(e){if(e.target.id==='checkout-overlay')document.getElementById('checkout-overlay').classList.remove('open');}
@@ -1200,23 +1196,21 @@ function setCS(loading,note,isError){
 function renderOrder(order){
   deliveredOrder=order;
   const l=document.getElementById('success-license');if(l)l.textContent=order.license_key;
-  const m=document.getElementById('success-meta');if(m)m.innerHTML=`<div><strong>App:</strong> ${esc(order.app_name)}</div><div><strong>Email:</strong> ${esc(order.customer_email)}</div><div><strong>Payment ID:</strong> ${esc(order.razorpay_payment_id)}</div>`;
+  const downloadUrl=order.download_url&&order.download_url!=='#'?order.download_url:'Not configured yet';
+  const m=document.getElementById('success-meta');if(m)m.innerHTML=`<div><strong>App:</strong> ${esc(order.app_name)}</div><div><strong>Email:</strong> ${esc(order.customer_email)}</div><div><strong>Payment ID:</strong> ${esc(order.razorpay_payment_id)}</div><div><strong>Download URL:</strong> ${downloadUrl==='Not configured yet'?esc(downloadUrl):`<a href="${esc(downloadUrl)}" target="_blank" rel="noopener noreferrer">${esc(downloadUrl)}</a>`}</div>`;
   const f=document.getElementById('success-footer');if(f)f.textContent=order.referral_code?`Referral code ${order.referral_code} attached.`:'Order recorded in Supabase.';
   document.getElementById('success-overlay').classList.add('open');
 }
 async function processPayment(){
   if(isPaying)return;
   const email=document.getElementById('checkout-email')?.value.trim();
-  const accessPassword=document.getElementById('checkout-password')?.value||'';
-  const confirmAccessPassword=document.getElementById('checkout-password-confirm')?.value||'';
   const ref=document.getElementById('checkout-ref')?.value.trim();
   if(!currentApp){showToast('Choose an app first',false);return;}
   if(!email||!email.includes('@')){showToast('Enter a valid email',false);return;}
-  if(accessPassword.length<6){showToast('Password must be at least 6 characters',false);return;}
   if(!window.Razorpay){showToast('Razorpay not loaded. Refresh page.',false);return;}
   setCS(true,'Creating your order...',false);
   try{
-    const oR=await fetch(`${API}/api/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({appId:currentApp.id,email,referralCode:ref,accessPassword,confirmAccessPassword})});
+    const oR=await fetch(`${API}/api/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({appId:currentApp.id,email,referralCode:ref})});
     let oD={};
     try{oD=await oR.json();}catch(e){throw new Error('Server error: Invalid response. Check console.');}
     if(!oR.ok)throw new Error(oD.error||oD.message||'Could not create order');
@@ -1234,7 +1228,7 @@ async function processPayment(){
           let vD={};
           try{vD=await vR.json();}catch(e){throw new Error('Server error: Invalid response on verification');}
           if(!vR.ok)throw new Error(vD.error||vD.message||'Verification failed');
-          keySession={email,password:accessPassword};
+          keySession={email,paymentId:vD.order?.razorpay_payment_id||pr.razorpay_payment_id||''};
           localStorage.setItem('appvault_keys_session',JSON.stringify(keySession));
           document.getElementById('checkout-overlay').classList.remove('open');
           renderOrder(vD.order);
@@ -1252,9 +1246,9 @@ function openDeliveredTutorial(){const u=deliveredOrder?.tutorial_url||currentAp
 function copyLicense(){const t=document.getElementById('success-license')?.textContent;if(t)navigator.clipboard.writeText(t).then(()=>showToast('Copied!',true));}
 
 function renderKeysPage(){
-  const em=document.getElementById('keys-email'),pw=document.getElementById('keys-password');
+  const em=document.getElementById('keys-email'),pid=document.getElementById('keys-payment-id');
   if(em&&!em.value&&keySession.email)em.value=keySession.email;
-  if(pw&&!pw.value&&keySession.password)pw.value=keySession.password;
+  if(pid&&!pid.value&&keySession.paymentId)pid.value=keySession.paymentId;
   renderKeysList();
 }
 function renderKeysList(){
@@ -1262,7 +1256,7 @@ function renderKeysList(){
   if(!list||!sub)return;
   if(!myKeysOrders.length){
     sub.textContent='Nothing loaded yet.';
-    list.innerHTML=`<div class="keys-empty">Sign in to load your purchased apps.</div>`;
+    list.innerHTML=`<div class="keys-empty">Enter your email and payment ID to load your purchase.</div>`;
     return;
   }
   sub.textContent=`${myKeysOrders.length} purchase${myKeysOrders.length!==1?'s':''} found`;
@@ -1277,6 +1271,7 @@ function renderKeysList(){
         </div>
         <div class="key-chip">Saved Key</div>
       </div>
+      <div class="key-item-meta" style="margin-bottom:10px;"><strong>Payment ID:</strong> ${esc(order.razorpay_payment_id||'N/A')}</div>
       <div class="key-code">
         <span>${esc(order.license_key||'N/A')}</span>
         <button class="btn-copy" onclick='navigator.clipboard.writeText(${JSON.stringify(order.license_key||"")}).then(()=>showToast("Copied!",true))'>Copy</button>
@@ -1290,21 +1285,21 @@ function renderKeysList(){
 }
 async function fetchMyKeys(){
   const email=document.getElementById('keys-email')?.value.trim();
-  const password=document.getElementById('keys-password')?.value||'';
+  const paymentId=document.getElementById('keys-payment-id')?.value.trim();
   const btn=document.getElementById('keys-fetch-btn'),note=document.getElementById('keys-note');
   if(!email||!email.includes('@')){showToast('Enter a valid email',false);return;}
-  if(!password){showToast('Enter your password',false);return;}
+  if(!paymentId){showToast('Enter your payment ID',false);return;}
   if(btn){btn.disabled=true;btn.textContent='Loading...';}
   if(note)note.textContent='Checking your purchases...';
   try{
-    const r=await fetch(`${API}/api/my-keys`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const r=await fetch(`${API}/api/my-keys`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,paymentId})});
     let d={};
     try{d=await r.json();}catch(e){throw new Error('Invalid server response');}
     if(!r.ok)throw new Error(d.error||'Could not fetch keys');
     myKeysOrders=Array.isArray(d.orders)?d.orders:[];
-    keySession={email,password};
+    keySession={email,paymentId};
     localStorage.setItem('appvault_keys_session',JSON.stringify(keySession));
-    if(note)note.textContent=myKeysOrders.length?'Your keys are ready below.':'No paid purchases found for this email yet.';
+    if(note)note.textContent=myKeysOrders.length?'Your purchase is ready below.':'No paid purchase found for this email and payment ID.';
     renderKeysList();
   }catch(err){
     myKeysOrders=[];
@@ -1319,10 +1314,10 @@ function logoutKeys(){
   myKeysOrders=[];
   keySession={};
   localStorage.removeItem('appvault_keys_session');
-  const em=document.getElementById('keys-email'),pw=document.getElementById('keys-password'),note=document.getElementById('keys-note');
+  const em=document.getElementById('keys-email'),pid=document.getElementById('keys-payment-id'),note=document.getElementById('keys-note');
   if(em)em.value='';
-  if(pw)pw.value='';
-  if(note)note.textContent='We only show keys linked to this email after server-side password verification.';
+  if(pid)pid.value='';
+  if(note)note.textContent='We only show the purchase that matches your email and Razorpay payment ID.';
   renderKeysList();
 }
 function openKeyLink(url,message){

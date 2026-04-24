@@ -189,6 +189,7 @@ Response:
     "id": 1,
     "app_name": "App Name",
     "customer_email": "customer@example.com",
+    "razorpay_payment_id": "pay_ABC123...",
     "license_key": "APPNA-ABC12-DEF34-GHI56",
     "download_url": "https://...",
     "status": "paid"
@@ -221,7 +222,7 @@ Response:
 3. **Payment Verification**: Idempotent - duplicate payments return existing order
 4. **Admin Panel**: Password protected (set in admin settings)
 5. **Email Validation**: Required for checkout
-6. **Key Access Password**: Product keys can be retrieved later using email + password via server endpoints
+6. **Purchase Recovery**: Product keys can be retrieved later using email + Razorpay payment ID via server endpoints
 7. **Input Sanitization**: XSS prevention via HTML escaping
 
 ## 🚢 Deployment
