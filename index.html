@@ -258,11 +258,13 @@
   .modal-close:hover{color:var(--text);}
   .modal-screenshots{display:flex;gap:7px;padding:12px 18px;overflow-x:auto;}
   .modal-screenshots img,.modal-screenshot-ph{height:125px;border-radius:8px;flex-shrink:0;border:1px solid var(--border);}
+  .modal-screenshots img{cursor:zoom-in;object-fit:cover;transition:transform 0.2s ease,border-color 0.2s ease,box-shadow 0.2s ease;}
+  .modal-screenshots img:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 10px 24px rgba(0,0,0,0.22);}
   .modal-screenshot-ph{width:200px;background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;}
   .modal-body{padding:0 18px 20px;}
   .modal-tag{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
   .modal-title{font-family:var(--font-head);font-size:21px;font-weight:800;margin-bottom:8px;}
-  .modal-desc{color:var(--text2);font-size:13px;line-height:1.75;margin-bottom:16px;}
+  .modal-desc{color:var(--text2);font-size:13px;line-height:1.75;margin-bottom:16px;white-space:pre-line;}
   .features-list{list-style:none;margin-bottom:20px;}
   .features-list li{font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;color:var(--text2);}
   .features-list li:last-child{border-bottom:none;}
@@ -276,6 +278,10 @@
   .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
   .video-placeholder{color:var(--text3);text-align:center;font-size:12px;}
   .video-placeholder .play-icon{width:44px;height:44px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 9px;font-size:17px;color:var(--text2);}
+  .lightbox-overlay{z-index:360;background:rgba(3,6,14,0.92);}
+  .lightbox-modal{position:relative;width:min(96vw,1100px);max-height:92vh;display:flex;align-items:center;justify-content:center;padding:42px 18px 18px;}
+  .lightbox-modal img{max-width:100%;max-height:calc(92vh - 60px);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,0.45);background:#0f172a;}
+  .lightbox-close{position:absolute;top:0;right:0;}
 
   /* CHECKOUT */
   .checkout-modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:100%;max-width:390px;padding:22px;animation:slideUp 0.22s ease;}
@@ -481,7 +487,7 @@
     </button>
     <div class="nav-logo"><span class="dot"></span> App<span>Vault</span></div>
   </div>
-  <button class="btn-earn" onclick="showPage('earn')">Earn 20%</button>
+  <button class="btn-earn" onclick="openEarnComingSoon()">Earn 20%</button>
 </nav>
 
 <!-- LEFT SIDEBAR NAV -->
@@ -795,7 +801,7 @@
     </div>
     Fortune
   </button>
-  <button class="bnav-item" id="bnav-earn" onclick="showPage('earn')">
+  <button class="bnav-item" id="bnav-earn" onclick="openEarnComingSoon()">
     <div class="bnav-icon-wrap">
       <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
     </div>
@@ -848,6 +854,13 @@
         <button class="btn-buy" onclick="openCheckout()">Buy Now →</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="overlay lightbox-overlay" id="screenshot-overlay" onclick="closeScreenshotLightbox(event)">
+  <div class="lightbox-modal">
+    <button class="modal-close lightbox-close" onclick="closeScreenshotLightbox()">✕</button>
+    <img id="screenshot-lightbox-image" alt="Expanded app preview" />
   </div>
 </div>
 
@@ -957,7 +970,14 @@ function toggleMobileNav() {
 }
 
 let currentPage='store';
+function openEarnComingSoon(){
+  showToast('Earn 20% is coming soon',false);
+}
 function showPage(page){
+  if(page==='earn'){
+    openEarnComingSoon();
+    return;
+  }
   currentPage=page;
   ['store','ideas','earn','fortune','keys','admin'].forEach(p=>{const el=document.getElementById('page-'+p);if(el)el.style.display='none';});
   const t=document.getElementById('page-'+page);if(t)t.style.display='block';
@@ -976,7 +996,6 @@ function showPage(page){
 
   if(page==='store')renderStore();
   if(page==='ideas')renderIdeasPage();
-  if(page==='earn')renderEarnPage();
   if(page==='fortune')renderFortunePage();
   if(page==='keys')renderKeysPage();
   if(page==='admin')renderAdmin();
@@ -1149,6 +1168,50 @@ function renderIdeasPage(){
 // product modal
 let currentApp=null;
 let myKeysOrders=[];
+function normalizeYouTubeEmbed(url){
+  const raw=String(url||'').trim();
+  if(!raw)return '';
+  let videoId='',start='';
+  try{
+    const parsed=new URL(raw);
+    const host=parsed.hostname.replace(/^www\./,'');
+    if(host==='youtu.be'){
+      videoId=parsed.pathname.slice(1).split('/')[0];
+      start=parsed.searchParams.get('t')||'';
+    }else if(host.endsWith('youtube.com')){
+      if(parsed.pathname==='/watch') videoId=parsed.searchParams.get('v')||'';
+      else if(parsed.pathname.startsWith('/embed/')) videoId=parsed.pathname.split('/embed/')[1]?.split(/[/?#]/)[0]||'';
+      else if(parsed.pathname.startsWith('/shorts/')) videoId=parsed.pathname.split('/shorts/')[1]?.split(/[/?#]/)[0]||'';
+      start=parsed.searchParams.get('t')||parsed.searchParams.get('start')||'';
+    }
+  }catch(_err){
+    return raw;
+  }
+  if(!videoId)return raw;
+  const params=new URLSearchParams({
+    rel:'0',
+    modestbranding:'1',
+    playsinline:'1',
+    hd:'1',
+    vq:'hd1080'
+  });
+  if(start) params.set('start',String(parseInt(start,10)||0));
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+function openScreenshotLightbox(src){
+  const overlay=document.getElementById('screenshot-overlay');
+  const img=document.getElementById('screenshot-lightbox-image');
+  if(!overlay||!img||!src)return;
+  img.src=src;
+  overlay.classList.add('open');
+}
+function closeScreenshotLightbox(e){
+  if(e&&e.target.id!=='screenshot-overlay')return;
+  const overlay=document.getElementById('screenshot-overlay');
+  const img=document.getElementById('screenshot-lightbox-image');
+  if(img) img.removeAttribute('src');
+  if(overlay) overlay.classList.remove('open');
+}
 function openProduct(id){
   const app=store.apps.find(a=>a.id===id);if(!app)return;
   currentApp=app;const s=store.settings;
@@ -1158,15 +1221,13 @@ function openProduct(id){
   document.getElementById('m-price').innerHTML=`<span style="font-size:12px;color:var(--text3);font-weight:400;">${esc(s.currency)}</span>${Number(app.price).toLocaleString()} <small>one-time</small>`;
   const vs=document.getElementById('m-video-section');
   if(app.videoUrl){
-    let u=app.videoUrl;
-    if(u.includes('youtube.com/watch'))u=u.replace('watch?v=','embed/');
-    if(u.includes('youtu.be/'))u='https://www.youtube.com/embed/'+u.split('youtu.be/')[1];
-    vs.innerHTML=`<div style="padding:0 18px 0;"><div class="video-wrap"><iframe src="${esc(u)}" allowfullscreen></iframe></div></div>`;
+    const u=normalizeYouTubeEmbed(app.videoUrl);
+    vs.innerHTML=`<div style="padding:0 18px 0;"><div class="video-wrap"><iframe src="${esc(u)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe></div></div>`;
   }else{
     vs.innerHTML=`<div style="padding:0 18px 0;"><div class="video-wrap"><div class="video-placeholder"><div class="play-icon">▶</div><div>Demo coming soon</div></div></div></div>`;
   }
   const sc=document.getElementById('m-screenshots');
-  sc.innerHTML=app.screenshots&&app.screenshots.length>0?app.screenshots.map(u=>`<img src="${esc(u)}" style="height:125px;border-radius:8px;border:1px solid var(--border);" />`).join(''):`<div class="modal-screenshot-ph">Screenshot 1</div><div class="modal-screenshot-ph">Screenshot 2</div>`;
+  sc.innerHTML=app.screenshots&&app.screenshots.length>0?app.screenshots.map((u,i)=>`<img src="${esc(u)}" alt="${esc(app.name)} preview ${i+1}" onclick="openScreenshotLightbox('${esc(u)}')" />`).join(''):`<div class="modal-screenshot-ph">Screenshot 1</div><div class="modal-screenshot-ph">Screenshot 2</div>`;
   document.getElementById('m-features').innerHTML=(app.features||[]).map(f=>`<li>${esc(f)}</li>`).join('');
   document.getElementById('product-overlay').classList.add('open');
 }
