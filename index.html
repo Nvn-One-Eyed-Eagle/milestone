@@ -723,6 +723,7 @@
     <button class="tab-btn active" onclick="adminTab('products',this)">Apps</button>
     <button class="tab-btn" onclick="adminTab('ideas',this)">Coming Soon</button>
     <button class="tab-btn" onclick="adminTab('submitted-ideas',this)">Submitted Ideas</button>
+    <button class="tab-btn" onclick="adminTab('analytics',this)">Analytics</button>
     <button class="tab-btn" onclick="adminTab('settings',this)">Settings</button>
     <div style="flex:1;"></div>
     <button class="btn-save" style="padding:5px 13px;font-size:12px;" onclick="showPage('store')">← Exit</button>
@@ -748,6 +749,13 @@
         <span style="font-size:12px;color:var(--text3);">From Ideas page</span>
       </div>
       <div id="admin-submitted-ideas-list"></div>
+    </div>
+    <div class="admin-section" id="admin-analytics">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h2 style="font-family:var(--font-head);font-size:16px;font-weight:700;">Analytics</h2>
+        <button class="btn-add" onclick="loadAnalytics()">↻ Refresh</button>
+      </div>
+      <div id="analytics-content"><div style="color:var(--text3);font-size:13px;">Click Refresh to load data.</div></div>
     </div>
     <div class="admin-section" id="admin-settings">
       <h2 style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:14px;">Store Settings</h2>
@@ -924,6 +932,17 @@
 
 <script>
 function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+async function track(event,data={}){
+  try{
+    await SB.from('analytics').insert({
+      event,
+      page:data.page||currentPage,
+      app_id:data.appId?String(data.appId):null,
+      app_name:data.appName||null,
+      referrer:document.referrer||null,
+    });
+  }catch(e){/* silent fail — never break UX for analytics */}
+}
 
 const SB=window.supabase.createClient('https://qgfrfionwcdziuixmezj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZnJmaW9ud2Nkeml1aXhtZXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODU0MjQsImV4cCI6MjA5MTE2MTQyNH0.XA2jQUq1gNFQhNs5UJ-bco6sZ7DWqvmdvrgb6r-7QWU');
 const API=window.location.origin;
@@ -952,6 +971,7 @@ async function initStore(){
   if(!ir.error) store.ideas=(ir.data||[]).map(nI);
   if(!sr.error) store.submittedIdeas=(sr.data||[]).map(nSI);
   else{console.warn('submitted_ideas table missing');store.submittedIdeas=[];}
+  track('page_view',{page:'store'});
   updateBadge();syncViews();
 }
 function updateBadge(){const b=document.getElementById('bnav-badge');if(!b)return;const c=store.submittedIdeas.length;if(c>0){b.textContent=c>99?'99+':c;b.classList.add('show');}else b.classList.remove('show');}
@@ -979,6 +999,7 @@ function showPage(page){
     return;
   }
   currentPage=page;
+  track('page_view',{page});
   ['store','ideas','earn','fortune','keys','admin'].forEach(p=>{const el=document.getElementById('page-'+p);if(el)el.style.display='none';});
   const t=document.getElementById('page-'+page);if(t)t.style.display='block';
   document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
@@ -1215,6 +1236,7 @@ function closeScreenshotLightbox(e){
 function openProduct(id){
   const app=store.apps.find(a=>a.id===id);if(!app)return;
   currentApp=app;const s=store.settings;
+  track('app_click',{appId:app.id,appName:app.name});
   document.getElementById('m-tag').textContent=app.category||'App';
   document.getElementById('m-title').textContent=app.name;
   document.getElementById('m-desc').textContent=app.fullDesc||app.shortDesc;
@@ -1486,6 +1508,52 @@ function adminTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('show'));
   const s=document.getElementById('admin-'+tab);if(s)s.classList.add('show');
+}
+async function loadAnalytics(){
+  const el=document.getElementById('analytics-content');
+  if(!el)return;
+  el.innerHTML='<div style="color:var(--text3);font-size:13px;">Loading...</div>';
+
+  const since=new Date(Date.now()-30*24*60*60*1000).toISOString();
+  const{data,error}=await SB.from('analytics').select('*').gte('created_at',since).order('created_at',{ascending:false});
+
+  if(error||!data){el.innerHTML='<div style="color:var(--red);font-size:13px;">Could not load analytics.</div>';return;}
+
+  const views=data.filter(e=>e.event==='page_view').length;
+  const clicks=data.filter(e=>e.event==='app_click').length;
+
+  const appMap={};
+  data.filter(e=>e.event==='app_click'&&e.app_name).forEach(e=>{
+    appMap[e.app_name]=(appMap[e.app_name]||0)+1;
+  });
+  const sorted=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
+  const maxClicks=sorted[0]?.[1]||1;
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px;">
+      <div class="admin-card" style="padding:16px;">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Page Views (30d)</div>
+        <div style="font-family:var(--font-head);font-size:28px;font-weight:700;">${views.toLocaleString()}</div>
+      </div>
+      <div class="admin-card" style="padding:16px;">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">App Clicks (30d)</div>
+        <div style="font-family:var(--font-head);font-size:28px;font-weight:700;">${clicks.toLocaleString()}</div>
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-body">
+        <div style="font-size:12px;font-weight:600;margin-bottom:12px;">App clicks (last 30 days)</div>
+        ${sorted.length===0?'<div style="color:var(--text3);font-size:13px;">No clicks yet.</div>':
+          sorted.map(([name,count])=>`
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div style="width:120px;font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(name)}</div>
+              <div style="flex:1;background:var(--bg3);border-radius:4px;height:8px;overflow:hidden;">
+                <div style="height:100%;width:${Math.round(count/maxClicks*100)}%;background:var(--accent);border-radius:4px;"></div>
+              </div>
+              <div style="font-size:12px;font-weight:600;min-width:24px;text-align:right;">${count}</div>
+            </div>`).join('')}
+      </div>
+    </div>`;
 }
 function renderAdmin(){
   renderAdminApps();renderAdminIdeas();renderAdminSI();
