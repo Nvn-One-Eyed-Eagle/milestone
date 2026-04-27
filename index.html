@@ -971,7 +971,6 @@ async function initStore(){
   if(!ir.error) store.ideas=(ir.data||[]).map(nI);
   if(!sr.error) store.submittedIdeas=(sr.data||[]).map(nSI);
   else{console.warn('submitted_ideas table missing');store.submittedIdeas=[];}
-  track('page_view',{page:'store'});
   updateBadge();syncViews();
 }
 function updateBadge(){const b=document.getElementById('bnav-badge');if(!b)return;const c=store.submittedIdeas.length;if(c>0){b.textContent=c>99?'99+':c;b.classList.add('show');}else b.classList.remove('show');}
@@ -1509,52 +1508,161 @@ function adminTab(tab,btn){
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('show'));
   const s=document.getElementById('admin-'+tab);if(s)s.classList.add('show');
 }
+
 async function loadAnalytics(){
   const el=document.getElementById('analytics-content');
   if(!el)return;
   el.innerHTML='<div style="color:var(--text3);font-size:13px;">Loading...</div>';
 
   const since=new Date(Date.now()-30*24*60*60*1000).toISOString();
-  const{data,error}=await SB.from('analytics').select('*').gte('created_at',since).order('created_at',{ascending:false});
 
-  if(error||!data){el.innerHTML='<div style="color:var(--red);font-size:13px;">Could not load analytics.</div>';return;}
+  const[{data:evData,error:evErr},{data:ordData,error:ordErr}]=await Promise.all([
+    SB.from('analytics').select('*').gte('created_at',since).order('created_at',{ascending:true}),
+    SB.from('orders').select('app_name,amount,created_at').gte('created_at',since)
+  ]);
 
-  const views=data.filter(e=>e.event==='page_view').length;
-  const clicks=data.filter(e=>e.event==='app_click').length;
+  if(evErr){el.innerHTML='<div style="color:var(--red);font-size:13px;">Could not load analytics: '+esc(evErr.message)+'</div>';return;}
 
-  const appMap={};
-  data.filter(e=>e.event==='app_click'&&e.app_name).forEach(e=>{
-    appMap[e.app_name]=(appMap[e.app_name]||0)+1;
+  const data=evData||[];
+  const orders=ordData||[];
+
+  // ── Deduplicate page_views: one per (page, date, referrer) ──
+  const seenViews=new Set();
+  const views=data.filter(e=>{
+    if(e.event!=='page_view')return false;
+    const day=e.created_at?.slice(0,10)||'';
+    const key=`${e.page}|${day}|${e.referrer||''}`;
+    if(seenViews.has(key))return false;
+    seenViews.add(key);
+    return true;
   });
-  const sorted=Object.entries(appMap).sort((a,b)=>b[1]-a[1]);
-  const maxClicks=sorted[0]?.[1]||1;
+  const clicks=data.filter(e=>e.event==='app_click');
+
+  // ── Revenue ──
+  const totalRevenue=orders.reduce((s,o)=>s+Number(o.amount||0),0);
+  const totalOrders=orders.length;
+
+  // ── Conversion rate ──
+  const convRate=clicks.length?((totalOrders/clicks.length)*100).toFixed(1):'0.0';
+
+  // ── App click breakdown with conversion ──
+  const appClicks={},appOrders={};
+  clicks.forEach(e=>{if(e.app_name)appClicks[e.app_name]=(appClicks[e.app_name]||0)+1;});
+  orders.forEach(o=>{if(o.app_name)appOrders[o.app_name]=(appOrders[o.app_name]||0)+1;});
+  const sortedApps=Object.entries(appClicks).sort((a,b)=>b[1]-a[1]);
+  const maxClicks=sortedApps[0]?.[1]||1;
+
+  // ── Daily trend (last 14 days) ──
+  const days14=[];
+  for(let i=13;i>=0;i--){const d=new Date(Date.now()-i*24*60*60*1000);days14.push(d.toISOString().slice(0,10));}
+  const viewsByDay={},clicksByDay={};
+  days14.forEach(d=>{viewsByDay[d]=0;clicksByDay[d]=0;});
+  views.forEach(e=>{const d=e.created_at?.slice(0,10);if(viewsByDay[d]!==undefined)viewsByDay[d]++;});
+  clicks.forEach(e=>{const d=e.created_at?.slice(0,10);if(clicksByDay[d]!==undefined)clicksByDay[d]++;});
+  const maxDay=Math.max(...days14.map(d=>viewsByDay[d]),1);
+
+  // ── Referrer breakdown ──
+  const refMap={};
+  views.forEach(e=>{
+    let src=e.referrer||'';
+    try{if(src)src=new URL(src).hostname.replace(/^www\./,'');}catch(_){}
+    src=src||'Direct';
+    refMap[src]=(refMap[src]||0)+1;
+  });
+  const sortedRefs=Object.entries(refMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // ── Page breakdown ──
+  const pageMap={};
+  views.forEach(e=>{const p=e.page||'unknown';pageMap[p]=(pageMap[p]||0)+1;});
+  const sortedPages=Object.entries(pageMap).sort((a,b)=>b[1]-a[1]);
 
   el.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px;">
-      <div class="admin-card" style="padding:16px;">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Page Views (30d)</div>
-        <div style="font-family:var(--font-head);font-size:28px;font-weight:700;">${views.toLocaleString()}</div>
-      </div>
-      <div class="admin-card" style="padding:16px;">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">App Clicks (30d)</div>
-        <div style="font-family:var(--font-head);font-size:28px;font-weight:700;">${clicks.toLocaleString()}</div>
+    <!-- Stat cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;">
+      ${[
+        ['Page Views',views.length,'(30d, deduped)','var(--accent)'],
+        ['App Clicks',clicks.length,'(30d)','var(--amber)'],
+        ['Orders',totalOrders,'(30d)','var(--green)'],
+        ['Revenue','₹'+totalRevenue.toLocaleString('en-IN'),'(30d)','var(--green)'],
+        ['Conv. Rate',convRate+'%','clicks → orders','var(--text2)'],
+      ].map(([label,val,sub,col])=>`
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:13px 14px;">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">${label}</div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:${col};">${val}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">${sub}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- 14-day sparkline -->
+    <div class="admin-card" style="margin-bottom:11px;">
+      <div class="admin-card-body">
+        <div style="font-size:12px;font-weight:600;margin-bottom:12px;">Daily page views — last 14 days</div>
+        <div style="display:flex;align-items:flex-end;gap:4px;height:60px;">
+          ${days14.map(d=>{
+            const h=Math.max(4,Math.round((viewsByDay[d]/maxDay)*56));
+            const label=d.slice(5);
+            return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+              <div title="${label}: ${viewsByDay[d]} views" style="width:100%;height:${h}px;background:var(--accent);border-radius:3px 3px 0 0;opacity:${0.5+0.5*(viewsByDay[d]/maxDay)};transition:opacity .2s;cursor:default;"></div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--text3);">
+          <span>${days14[0].slice(5)}</span><span>today</span>
+        </div>
       </div>
     </div>
-    <div class="admin-card">
-      <div class="admin-card-body">
-        <div style="font-size:12px;font-weight:600;margin-bottom:12px;">App clicks (last 30 days)</div>
-        ${sorted.length===0?'<div style="color:var(--text3);font-size:13px;">No clicks yet.</div>':
-          sorted.map(([name,count])=>`
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-              <div style="width:120px;font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(name)}</div>
-              <div style="flex:1;background:var(--bg3);border-radius:4px;height:8px;overflow:hidden;">
-                <div style="height:100%;width:${Math.round(count/maxClicks*100)}%;background:var(--accent);border-radius:4px;"></div>
-              </div>
-              <div style="font-size:12px;font-weight:600;min-width:24px;text-align:right;">${count}</div>
-            </div>`).join('')}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;">
+
+      <!-- App clicks + conversion -->
+      <div class="admin-card">
+        <div class="admin-card-body">
+          <div style="font-size:12px;font-weight:600;margin-bottom:12px;">App clicks (30d)</div>
+          ${sortedApps.length===0?'<div style="color:var(--text3);font-size:13px;">No clicks yet.</div>':
+            sortedApps.map(([name,count])=>{
+              const orders=appOrders[name]||0;
+              const cr=count?((orders/count)*100).toFixed(0):'0';
+              return`<div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+                  <span style="color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${esc(name)}</span>
+                  <span style="color:var(--text3);flex-shrink:0;margin-left:4px;">${count} clicks · ${orders} orders · <span style="color:var(--green)">${cr}%</span></span>
+                </div>
+                <div style="background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;">
+                  <div style="height:100%;width:${Math.round(count/maxClicks*100)}%;background:var(--accent);border-radius:4px;"></div>
+                </div>
+              </div>`;
+            }).join('')}
+        </div>
+      </div>
+
+      <!-- Right column: Traffic sources + Page breakdown -->
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div class="admin-card">
+          <div class="admin-card-body">
+            <div style="font-size:12px;font-weight:600;margin-bottom:10px;">Traffic sources</div>
+            ${sortedRefs.length===0?'<div style="color:var(--text3);font-size:12px;">No referrer data.</div>':
+              sortedRefs.map(([src,cnt])=>`
+                <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);">
+                  <span style="color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">${esc(src)}</span>
+                  <span style="color:var(--text);font-weight:600;flex-shrink:0;">${cnt}</span>
+                </div>`).join('')}
+          </div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-body">
+            <div style="font-size:12px;font-weight:600;margin-bottom:10px;">Views by page</div>
+            ${sortedPages.map(([page,cnt])=>`
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--text2);">${esc(page)}</span>
+                <span style="color:var(--text);font-weight:600;">${cnt}</span>
+              </div>`).join('')}
+          </div>
+        </div>
       </div>
     </div>`;
 }
+
+
 function renderAdmin(){
   renderAdminApps();renderAdminIdeas();renderAdminSI();
   const sn=document.getElementById('s-name');if(sn)sn.value=store.settings.name;
