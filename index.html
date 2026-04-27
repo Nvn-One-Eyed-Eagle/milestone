@@ -1279,7 +1279,7 @@ function renderOrder(order){
   deliveredOrder=order;
   const l=document.getElementById('success-license');if(l)l.textContent=order.license_key;
   const downloadUrl=order.download_url&&order.download_url!=='#'?order.download_url:'Not configured yet';
-  const m=document.getElementById('success-meta');if(m)m.innerHTML=`<div><strong>App:</strong> ${esc(order.app_name)}</div><div><strong>Email:</strong> ${esc(order.customer_email)}</div><div><strong>Payment ID:</strong> ${esc(order.razorpay_payment_id)}</div><div><strong>Download URL:</strong> ${downloadUrl==='Not configured yet'?esc(downloadUrl):`<a href="${esc(downloadUrl)}" target="_blank" rel="noopener noreferrer">${esc(downloadUrl)}</a>`}</div>`;
+  const m=document.getElementById('success-meta');if(m)m.innerHTML=`<div><strong>App:</strong> ${esc(order.app_name)}</div><div><strong>Email:</strong> ${esc(order.customer_email)}</div><div><strong>Payment ID:</strong> ${esc(order.razorpay_payment_id)}</div><div><strong>Download URL:</strong> ${downloadUrl==='Not configured yet'?esc(downloadUrl):`<a href="${esc(downloadUrl)}" target="_blank" rel="noopener noreferrer">${esc(downloadUrl)}</a>`}</div><div style="margin-top:8px;color:var(--amber);font-weight:600;">⚠ Please take a screenshot of this payment ID and download link for your records.</div>`;
   const f=document.getElementById('success-footer');if(f)f.textContent=order.referral_code?`Referral code ${order.referral_code} attached.`:'Order recorded in Supabase.';
   document.getElementById('success-overlay').classList.add('open');
 }
